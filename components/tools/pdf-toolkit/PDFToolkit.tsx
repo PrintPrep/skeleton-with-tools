@@ -87,7 +87,7 @@ export default function PDFToolkit() {
                 const formData = new FormData();
                 formData.append('pdf', file);
 
-                const response = await fetch('/api/pdf/extract', {
+                const response = await fetch('/api/pdf-toolkit/pdf/extract', {
                     method: 'POST',
                     body: formData
                 });
@@ -372,7 +372,7 @@ export default function PDFToolkit() {
                 }
             });
 
-            const response = await fetch('/api/pdf/merge', {
+            const response = await fetch('/api/pdf-toolkit/pdf/merge', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
