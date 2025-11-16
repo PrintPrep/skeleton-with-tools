@@ -2,7 +2,7 @@
 import "./globals.css";
 
 export const metadata = {
-    title: "PrintPrep",
+    title: "PrintPrev",
     description: "All-in-one PDF print preparation toolkit",
 };
 
