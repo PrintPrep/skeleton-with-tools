@@ -10,7 +10,7 @@ export function HomeNavbar() {
                     <div className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
                         <span className="text-white text-xl font-bold">P</span>
                     </div>
-                    <span className="text-2xl font-bold text-slate-900">PrintPrep</span>
+                    <span className="text-2xl font-bold text-slate-900">PrintPrev</span>
                 </Link>
 
                 <div className="flex items-center space-x-8">
