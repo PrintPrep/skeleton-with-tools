@@ -1,7 +1,8 @@
 // app/page.tsx
 
-import Image from "next/image";
 import Link from "next/link";
+import { HomeNavbar } from "@/components/home/HomeNavbar";
+import { Hero } from "@/components/home/Hero";
 
 export default function HomePage() {
     return (
@@ -11,38 +12,8 @@ export default function HomePage() {
             <div className="fixed top-40 right-10 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000 pointer-events-none"></div>
             <div className="fixed bottom-20 left-20 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000 pointer-events-none"></div>
 
-            {/* ===== HERO SECTION ===== */}
-            <section className="relative px-6 md:px-12 lg:px-24 py-24 text-center">
-                <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900">
-                    Prepare Print-Ready PDFs in{" "}
-                    <span className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
-                        Minutes
-                    </span>
-                </h1>
-
-                <p className="mt-6 text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto font-medium leading-relaxed">
-                    PrintPrep is a browser-based toolkit for booklet imposition, ticket numbering,
-                    PDF manipulation, and sticker layouts — built for creators, schools, and print shops.
-                </p>
-
-                <div className="mt-10">
-                    <Link
-                        href="/dashboard"
-                        className="inline-flex items-center px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-200 shadow-2xl hover:shadow-cyan-500/50 hover:scale-105"
-                    >
-                        Go to Dashboard
-                        <span className="ml-2">→</span>
-                    </Link>
-                </div>
-
-                {/* Mock image placeholder */}
-                <div className="mt-16 flex justify-center">
-                    <div className="w-full max-w-4xl h-80 bg-white rounded-3xl border-2 border-slate-200 shadow-2xl flex items-center justify-center text-slate-400 font-semibold text-lg overflow-hidden relative">
-                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 opacity-50"></div>
-                        <span className="relative z-10">🎨 Screenshot / Tool Mockups Here</span>
-                    </div>
-                </div>
-            </section>
+            <HomeNavbar />
+            <Hero />
 
             {/* ===== TOOLS OVERVIEW ===== */}
             <section className="relative px-6 md:px-12 lg:px-24 py-24 bg-white/80 backdrop-blur-sm">
@@ -60,21 +31,21 @@ export default function HomePage() {
                         {
                             title: "Booklet Imposition",
                             desc: "Create print-ready booklets instantly.",
-                            link: "/tools/booklet",
+                            link: "/tools/booklet-imposition",
                             icon: "📖",
                             color: "from-blue-500 to-indigo-500"
                         },
                         {
                             title: "Ticket Layout + Numbering",
                             desc: "Generate grids with sequential numbering.",
-                            link: "/tools/tickets",
+                            link: "/tools/ticket-layout",
                             icon: "🎫",
                             color: "from-purple-500 to-pink-500"
                         },
                         {
                             title: "Sticker Pack",
                             desc: "Arrange sticker sheets for printing.",
-                            link: "/tools/stickers",
+                            link: "/tools/sticker-pack",
                             icon: "✨",
                             color: "from-pink-500 to-red-500"
                         },
