@@ -5,76 +5,94 @@ import Link from "next/link";
 
 export default function HomePage() {
     return (
-        <main className="min-h-screen bg-white text-gray-800">
+        <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 text-slate-800">
+            {/* Decorative background elements */}
+            <div className="fixed top-20 left-10 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob pointer-events-none"></div>
+            <div className="fixed top-40 right-10 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000 pointer-events-none"></div>
+            <div className="fixed bottom-20 left-20 w-96 h-96 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000 pointer-events-none"></div>
+
             {/* ===== HERO SECTION ===== */}
-            <section className="px-6 md:px-12 lg:px-24 py-20 text-center">
-                <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-                    Prepare Print-Ready PDFs in Minutes
+            <section className="relative px-6 md:px-12 lg:px-24 py-24 text-center">
+                <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900">
+                    Prepare Print-Ready PDFs in{" "}
+                    <span className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
+                        Minutes
+                    </span>
                 </h1>
 
-                <p className="mt-4 text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+                <p className="mt-6 text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto font-medium leading-relaxed">
                     PrintPrep is a browser-based toolkit for booklet imposition, ticket numbering,
                     PDF manipulation, and sticker layouts — built for creators, schools, and print shops.
                 </p>
 
-                <div className="mt-8">
+                <div className="mt-10">
                     <Link
                         href="/dashboard"
-                        className="px-6 py-3 rounded-xl bg-black text-white font-medium hover:bg-gray-900 transition"
+                        className="inline-flex items-center px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-200 shadow-2xl hover:shadow-cyan-500/50 hover:scale-105"
                     >
                         Go to Dashboard
+                        <span className="ml-2">→</span>
                     </Link>
                 </div>
 
                 {/* Mock image placeholder */}
-                <div className="mt-12 flex justify-center">
-                    <div className="w-full max-w-3xl h-64 bg-gray-100 rounded-xl border border-gray-200 flex items-center justify-center text-gray-400">
-                        Screenshot / Tool Mockups Here
+                <div className="mt-16 flex justify-center">
+                    <div className="w-full max-w-4xl h-80 bg-white rounded-3xl border-2 border-slate-200 shadow-2xl flex items-center justify-center text-slate-400 font-semibold text-lg overflow-hidden relative">
+                        <div className="absolute inset-0 bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 opacity-50"></div>
+                        <span className="relative z-10">🎨 Screenshot / Tool Mockups Here</span>
                     </div>
                 </div>
             </section>
 
             {/* ===== TOOLS OVERVIEW ===== */}
-            <section className="px-6 md:px-12 lg:px-24 py-20 bg-gray-50">
-                <h2 className="text-3xl md:text-4xl font-bold text-center">Tools</h2>
+            <section className="relative px-6 md:px-12 lg:px-24 py-24 bg-white/80 backdrop-blur-sm">
+                <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-900">Tools</h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-12">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
                     {[
                         {
                             title: "PDF Toolkit",
                             desc: "Split, merge, and organize PDFs easily.",
                             link: "/tools/pdf-toolkit",
+                            icon: "📄",
+                            color: "from-cyan-500 to-blue-500"
                         },
                         {
                             title: "Booklet Imposition",
                             desc: "Create print-ready booklets instantly.",
                             link: "/tools/booklet",
+                            icon: "📖",
+                            color: "from-blue-500 to-indigo-500"
                         },
                         {
                             title: "Ticket Layout + Numbering",
                             desc: "Generate grids with sequential numbering.",
                             link: "/tools/tickets",
+                            icon: "🎫",
+                            color: "from-purple-500 to-pink-500"
                         },
                         {
                             title: "Sticker Pack",
                             desc: "Arrange sticker sheets for printing.",
                             link: "/tools/stickers",
+                            icon: "✨",
+                            color: "from-pink-500 to-red-500"
                         },
                     ].map((tool) => (
                         <div
                             key={tool.title}
-                            className="p-6 bg-white rounded-xl border hover:shadow-md transition"
+                            className="group p-8 bg-white rounded-3xl border-2 border-slate-200 hover:border-cyan-400 hover:shadow-2xl transition-all duration-300 hover:-translate-y-2"
                         >
-                            <div className="w-full h-28 bg-gray-100 rounded-lg mb-4 flex items-center justify-center text-gray-400">
-                                Icon / Image
+                            <div className={`w-full h-32 bg-gradient-to-br ${tool.color} rounded-2xl mb-5 flex items-center justify-center text-5xl shadow-lg group-hover:scale-110 transition-transform`}>
+                                {tool.icon}
                             </div>
 
-                            <h3 className="text-lg font-semibold">{tool.title}</h3>
-                            <p className="text-gray-600 mt-1">{tool.desc}</p>
+                            <h3 className="text-xl font-bold text-slate-900">{tool.title}</h3>
+                            <p className="text-slate-600 mt-2 leading-relaxed">{tool.desc}</p>
 
                             <Link
                                 href={tool.link}
-                                className="mt-4 inline-block text-blue-600 hover:underline"
+                                className="mt-5 inline-flex items-center text-cyan-600 hover:text-cyan-700 font-bold group-hover:translate-x-1 transition-transform"
                             >
                                 Try Tool →
                             </Link>
@@ -84,82 +102,117 @@ export default function HomePage() {
             </section>
 
             {/* ===== VALUE PROPS ===== */}
-            <section className="px-6 md:px-12 lg:px-24 py-20">
-                <h2 className="text-3xl md:text-4xl font-bold text-center">Why PrintPrep?</h2>
+            <section className="relative px-6 md:px-12 lg:px-24 py-24">
+                <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-900">Why PrintPrep?</h2>
 
-                <ul className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto text-lg">
-                    <li>✨ Works directly in the browser — no installation</li>
-                    <li>🎨 Made for creators, schools, event teams, and print shops</li>
-                    <li>📄 Accurate print-ready PDF output</li>
-                    <li>⚡ Saves hours of prepress time</li>
+                <ul className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+                    {[
+                        { emoji: "✨", text: "Works directly in the browser — no installation" },
+                        { emoji: "🎨", text: "Made for creators, schools, event teams, and print shops" },
+                        { emoji: "📄", text: "Accurate print-ready PDF output" },
+                        { emoji: "⚡", text: "Saves hours of prepress time" }
+                    ].map((item, i) => (
+                        <li key={i} className="flex items-start space-x-4 p-6 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all border border-slate-100 hover:-translate-y-1">
+                            <span className="text-4xl flex-shrink-0">{item.emoji}</span>
+                            <span className="text-lg text-slate-700 font-medium pt-2">{item.text}</span>
+                        </li>
+                    ))}
                 </ul>
             </section>
 
             {/* ===== FEATURES ===== */}
-            <section className="px-6 md:px-12 lg:px-24 py-20 bg-gray-50">
-                <h2 className="text-3xl md:text-4xl font-bold text-center">
+            <section className="relative px-6 md:px-12 lg:px-24 py-24 bg-white/80 backdrop-blur-sm">
+                <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-900">
                     Powerful Features
                 </h2>
 
-                <ul className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto text-gray-700">
-                    <li>• Sequential numbering</li>
-                    <li>• Drag-and-drop PDFs</li>
-                    <li>• Automatic crops, bleed & imposition presets</li>
-                    <li>• Fast previews (coming soon)</li>
-                </ul>
+                <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-5 max-w-4xl mx-auto">
+                    {[
+                        "Sequential numbering",
+                        "Drag-and-drop PDFs",
+                        "Automatic crops, bleed & imposition presets",
+                        "Fast previews (coming soon)"
+                    ].map((feature, i) => (
+                        <div key={i} className="flex items-center space-x-4 p-5 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl border-2 border-cyan-200 hover:shadow-lg transition-all">
+                            <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg flex-shrink-0">
+                                ✓
+                            </div>
+                            <span className="text-slate-700 font-semibold">{feature}</span>
+                        </div>
+                    ))}
+                </div>
             </section>
 
             {/* ===== PRICING ===== */}
-            <section className="px-6 md:px-12 lg:px-24 py-20">
-                <h2 className="text-3xl md:text-4xl font-bold text-center">Pricing</h2>
+            <section className="relative px-6 md:px-12 lg:px-24 py-24">
+                <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-900">Pricing</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 max-w-4xl mx-auto">
-                    <div className="p-6 rounded-xl border bg-white">
-                        <h3 className="text-xl font-semibold">Free Tier</h3>
-                        <p className="text-gray-600 mt-2">Basic tools — Coming soon</p>
+                    <div className="p-8 rounded-3xl border-2 border-slate-200 bg-white shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1">
+                        <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-5 shadow-lg">
+                            🆓
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-900">Free Tier</h3>
+                        <p className="text-slate-600 mt-3 font-medium">Basic tools — Coming soon</p>
                     </div>
 
-                    <div className="p-6 rounded-xl border bg-white">
-                        <h3 className="text-xl font-semibold">Pro Tier</h3>
-                        <p className="text-gray-600 mt-2">Advanced features — Coming soon</p>
+                    <div className="p-8 rounded-3xl border-2 border-cyan-400 bg-gradient-to-br from-cyan-50 to-blue-50 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 bg-gradient-to-br from-cyan-500 to-blue-600 text-white text-xs font-bold px-4 py-2 rounded-bl-2xl shadow-lg">
+                            POPULAR
+                        </div>
+                        <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl flex items-center justify-center text-white text-2xl mb-5 shadow-lg">
+                            ⭐
+                        </div>
+                        <h3 className="text-2xl font-bold text-slate-900">Pro Tier</h3>
+                        <p className="text-slate-600 mt-3 font-medium">Advanced features — Coming soon</p>
                     </div>
                 </div>
             </section>
 
             {/* ===== TESTIMONIALS ===== */}
-            <section className="px-6 md:px-12 lg:px-24 py-20 bg-gray-50">
-                <h2 className="text-3xl md:text-4xl font-bold text-center">Testimonials</h2>
+            <section className="relative px-6 md:px-12 lg:px-24 py-24 bg-white/80 backdrop-blur-sm">
+                <h2 className="text-4xl md:text-5xl font-bold text-center text-slate-900">Testimonials</h2>
 
                 <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {[1, 2, 3].map((i) => (
+                    {[
+                        { color: "from-cyan-500 to-blue-500", initial: "A" },
+                        { color: "from-purple-500 to-pink-500", initial: "B" },
+                        { color: "from-blue-500 to-indigo-500", initial: "C" }
+                    ].map((item, i) => (
                         <div
                             key={i}
-                            className="p-6 bg-white rounded-xl border text-gray-600"
+                            className="p-8 bg-white rounded-3xl border-2 border-slate-200 text-slate-700 shadow-lg hover:shadow-2xl transition-all hover:-translate-y-1"
                         >
-                            <p>“This tool saved me hours!” — User {i}</p>
+                            <div className={`w-12 h-12 bg-gradient-to-br ${item.color} rounded-xl flex items-center justify-center text-white font-bold text-lg mb-4 shadow-lg`}>
+                                {item.initial}
+                            </div>
+                            <p className="font-medium leading-relaxed italic">
+                                "This tool saved me hours!"
+                            </p>
+                            <p className="text-slate-500 text-sm mt-3 font-semibold">— User {i + 1}</p>
                         </div>
                     ))}
                 </div>
             </section>
 
             {/* ===== FOOTER ===== */}
-            <footer className="px-6 md:px-12 lg:px-24 py-12 border-t bg-white text-gray-600">
-                <div className="flex flex-col md:flex-row justify-between">
-                    <p>© {new Date().getFullYear()} PrintPrep</p>
+            <footer className="relative px-6 md:px-12 lg:px-24 py-12 border-t-2 border-slate-200 bg-white text-slate-600">
+                <div className="flex flex-col md:flex-row justify-between items-center">
+                    <p className="font-semibold">© {new Date().getFullYear()} PrintPrep. All rights reserved.</p>
 
-                    <ul className="flex gap-6 mt-4 md:mt-0">
+                    <ul className="flex gap-8 mt-4 md:mt-0">
                         <li>
-                            <Link href="/dashboard" className="hover:underline">
+                            <Link href="/dashboard" className="hover:text-cyan-600 transition-colors font-semibold">
                                 Dashboard
                             </Link>
                         </li>
                         <li>
-                            <Link href="/tools" className="hover:underline">
+                            <Link href="/tools" className="hover:text-cyan-600 transition-colors font-semibold">
                                 Tools
                             </Link>
                         </li>
                         <li>
-                            <Link href="/contact" className="hover:underline">
+                            <Link href="/contact" className="hover:text-cyan-600 transition-colors font-semibold">
                                 Contact
                             </Link>
                         </li>
