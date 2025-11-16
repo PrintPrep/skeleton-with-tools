@@ -8,7 +8,7 @@ export function DashboardNavbar() {
             <div>
                 <h1 className="text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
                 <p className="mt-3 text-slate-600 text-lg font-medium">
-                    Welcome to PrintPrep. Choose a tool to get started.
+                    Welcome to PrintPrev. Choose a tool to get started.
                 </p>
             </div>
 

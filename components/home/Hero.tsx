@@ -22,7 +22,7 @@ export function Hero() {
                     href="/dashboard"
                     className="inline-flex items-center px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-200 shadow-2xl hover:shadow-cyan-500/50 hover:scale-105"
                 >
-                    Go to Dashboard
+                    Get Started
                     <span className="ml-2">→</span>
                 </Link>
             </div>

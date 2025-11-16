@@ -7,7 +7,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             {/* ===== DASHBOARD NAVBAR ===== */}
             <nav className="w-full border-b bg-white/90 backdrop-blur px-6 md:px-12 lg:px-24 py-4 flex items-center justify-between">
                 <Link href="/dashboard" className="text-xl font-bold">
-                    PrintPrep
+                    PrintPrev
                 </Link>
 
                 <div className="flex items-center gap-6 text-sm">
