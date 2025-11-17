@@ -1,39 +1,56 @@
 // components/home/Hero.tsx
 
-import Link from "next/link";
+'use client';
 
-export function Hero() {
+import React from 'react';
+import { ChevronDown, ArrowRight } from 'lucide-react';
+import {useRouter} from "next/navigation";
+
+export const Hero = () => {
+    const router = useRouter();
+
+    const handleGetStarted = () => {
+        router.push('/dashboard');
+    };
+
     return (
-        <section className="relative px-6 md:px-12 lg:px-24 py-24 text-center">
-            <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-slate-900">
-                Prepare Print-Ready PDFs in{" "}
-                <span className="bg-gradient-to-r from-cyan-500 to-blue-600 bg-clip-text text-transparent">
-                    Minutes
-                </span>
-            </h1>
+        <section className="relative pt-32 pb-20 px-4 overflow-hidden">
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-cyan-50 via-white to-teal-50 -z-10" />
 
-            <p className="mt-6 text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto font-medium leading-relaxed">
-                PrintPrep is a browser-based toolkit for booklet imposition, ticket numbering,
-                PDF manipulation, and sticker layouts — built for creators, schools, and print shops.
-            </p>
+            {/* Floating shapes */}
+            <div className="absolute top-20 left-10 w-32 h-32 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-bounce" />
+            <div className="absolute top-40 right-10 w-40 h-40 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" />
+            <div className="absolute bottom-10 left-1/2 w-36 h-36 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-20" />
 
-            <div className="mt-10">
-                <Link
-                    href="/dashboard"
-                    className="inline-flex items-center px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-lg hover:from-cyan-600 hover:to-blue-700 transition-all duration-200 shadow-2xl hover:shadow-cyan-500/50 hover:scale-105"
-                >
-                    Get Started
-                    <span className="ml-2">→</span>
-                </Link>
-            </div>
+            <div className="max-w-4xl mx-auto text-center relative z-10">
+                <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+                    Design Stunning<br />
+                    <span className="bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">PDFs & Documents</span> 📄
+                </h1>
 
-            {/* Mock image placeholder */}
-            <div className="mt-16 flex justify-center">
-                <div className="w-full max-w-4xl h-80 bg-white rounded-3xl border-2 border-slate-200 shadow-2xl flex items-center justify-center text-slate-400 font-semibold text-lg overflow-hidden relative">
-                    <div className="absolute inset-0 bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 opacity-50"></div>
-                    <span className="relative z-10">🎨 Screenshot / Tool Mockups Here</span>
+                <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
+                    Create, customize, and export organized PDFs effortlessly — a Canva-style experience made just for document creators.
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+                    <button
+                        onClick={handleGetStarted}
+                        className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:shadow-2xl hover:scale-105 transition-all"
+                    >
+                        Start Designing <ArrowRight className="inline ml-2" size={20} />
+                    </button>
+                </div>
+
+                <p className="text-gray-500 text-sm mb-8">
+                    No accounts. No clutter. Just creativity unleashed.
+                </p>
+
+                {/* Scroll indicator */}
+                <div className="flex justify-center mt-12 animate-bounce">
+                    <ChevronDown className="text-teal-500" size={32} />
                 </div>
             </div>
         </section>
     );
-}
+};
