@@ -3,9 +3,9 @@ import type { ReactNode } from "react";
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
     return (
-        <div className="min-h-screen bg-gray-50 text-gray-800">
+        <div className="min-h-screen bg-gradient-to-br from-[#E0F7F4] to-gray-100 text-gray-800">
             {/* ===== DASHBOARD NAVBAR ===== */}
-            <nav className="w-full border-b bg-white/90 backdrop-blur px-6 md:px-12 lg:px-24 py-4 flex items-center justify-between">
+            <nav className="w-full border-b bg-[#E0F7F4]/80 backdrop-blur px-6 md:px-12 lg:px-24 py-4 flex items-center justify-between">
                 <Link href="/dashboard" className="text-xl font-bold">
                     PrintPrev
                 </Link>
@@ -35,7 +35,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </nav>
 
             {/* ===== MAIN CONTENT WRAPPER ===== */}
-            <main className="px-6 md:px-12 lg:px-24 py-12">{children}</main>
+            <main className="px-6 md:px-12 lg:px-24 py-12 relative z-10">{children}</main>
         </div>
     );
 }
