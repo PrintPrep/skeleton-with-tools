@@ -20,19 +20,21 @@ export function Select({
     return (
         <div className="w-full">
             {label && (
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
                     {label}
                 </label>
             )}
 
             <select
                 className={cn(
-                    'w-full px-3 py-2 border rounded-lg shadow-sm transition-colors',
-                    'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
+                    'w-full px-4 py-3 border-2 rounded-xl shadow-sm transition-all duration-200',
+                    'focus:outline-none focus:ring-4 focus:ring-teal-200 focus:border-teal-500',
+                    'hover:border-teal-300 cursor-pointer',
+                    'bg-white text-gray-900 font-medium',
                     error
-                        ? 'border-red-500 bg-red-50'
-                        : 'border-gray-300 bg-white hover:border-gray-400',
-                    'disabled:bg-gray-100 disabled:cursor-not-allowed',
+                        ? 'border-red-500 bg-red-50 focus:ring-red-200 focus:border-red-500'
+                        : 'border-gray-200',
+                    'disabled:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-60',
                     className
                 )}
                 {...props}
@@ -41,11 +43,11 @@ export function Select({
             </select>
 
             {error && (
-                <p className="mt-1 text-sm text-red-600">{error}</p>
+                <p className="mt-2 text-sm text-red-600 font-medium">{error}</p>
             )}
 
             {helperText && !error && (
-                <p className="mt-1 text-sm text-gray-500">{helperText}</p>
+                <p className="mt-2 text-sm text-gray-600">{helperText}</p>
             )}
         </div>
     );

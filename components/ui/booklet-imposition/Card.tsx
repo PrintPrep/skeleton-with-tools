@@ -14,22 +14,22 @@ export function Card({ children, className, title, description }: CardProps) {
     return (
         <div
             className={cn(
-                'bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden',
+                'glass-effect rounded-3xl shadow-xl border border-teal-100 overflow-hidden hover:shadow-glow transition-all duration-300 hover:scale-[1.01]',
                 className
             )}
         >
             {(title || description) && (
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div className="px-8 py-5 border-b border-teal-100 bg-gradient-to-r from-teal-50/80 to-mint-50/50">
                     {title && (
-                        <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+                        <h3 className="text-xl font-bold text-gray-900">{title}</h3>
                     )}
                     {description && (
-                        <p className="mt-1 text-sm text-gray-600">{description}</p>
+                        <p className="mt-1.5 text-sm text-gray-600">{description}</p>
                     )}
                 </div>
             )}
 
-            <div className="p-6">{children}</div>
+            <div className="p-8">{children}</div>
         </div>
     );
 }
@@ -41,7 +41,7 @@ interface CardHeaderProps {
 
 export function CardHeader({ children, className }: CardHeaderProps) {
     return (
-        <div className={cn('px-6 py-4 border-b border-gray-200 bg-gray-50', className)}>
+        <div className={cn('px-8 py-5 border-b border-teal-100 bg-gradient-to-r from-teal-50/80 to-mint-50/50', className)}>
             {children}
         </div>
     );
@@ -53,7 +53,7 @@ interface CardContentProps {
 }
 
 export function CardContent({ children, className }: CardContentProps) {
-    return <div className={cn('p-6', className)}>{children}</div>;
+    return <div className={cn('p-8', className)}>{children}</div>;
 }
 
 interface CardFooterProps {
@@ -63,7 +63,7 @@ interface CardFooterProps {
 
 export function CardFooter({ children, className }: CardFooterProps) {
     return (
-        <div className={cn('px-6 py-4 border-t border-gray-200 bg-gray-50', className)}>
+        <div className={cn('px-8 py-5 border-t border-teal-100 bg-gradient-to-r from-teal-50/80 to-mint-50/50', className)}>
             {children}
         </div>
     );

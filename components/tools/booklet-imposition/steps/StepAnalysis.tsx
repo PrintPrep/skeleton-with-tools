@@ -1,5 +1,7 @@
 // components/tools/booklet-imposition/steps/StepAnalysis.tsx
 
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { useBookletStore } from '@/lib/booklet-imposition/store/useBookletStore';
 import { Button } from '@/components/ui/booklet-imposition/Button';
@@ -69,8 +71,11 @@ export function StepAnalysis() {
             <div className="max-w-2xl mx-auto">
                 <Card>
                     <div className="flex flex-col items-center justify-center py-12">
-                        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-600 border-t-transparent mb-4" />
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        <div className="relative">
+                            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600" />
+                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary-500/20 to-accent-500/20 blur-xl" />
+                        </div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2 mt-4">
                             Analyzing PDF...
                         </h3>
                         <p className="text-gray-600">
@@ -111,24 +116,30 @@ export function StepAnalysis() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <Card className="text-center">
-                    <FileText className="w-12 h-12 text-primary-600 mx-auto mb-3" />
+                <Card className="text-center hover:scale-105 transition-transform duration-300">
+                    <div className="p-2 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl w-fit mx-auto mb-3 shadow-lg shadow-primary-500/30">
+                        <FileText className="w-8 h-8 text-white" />
+                    </div>
                     <p className="text-3xl font-bold text-gray-900 mb-1">
                         {analysis.totalPages}
                     </p>
                     <p className="text-sm text-gray-600">Total Pages</p>
                 </Card>
 
-                <Card className="text-center">
-                    <Layers className="w-12 h-12 text-primary-600 mx-auto mb-3" />
-                    <p className="text-3xl font-bold text-gray-900 mb-1">
+                <Card className="text-center hover:scale-105 transition-transform duration-300">
+                    <div className="p-2 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl w-fit mx-auto mb-3 shadow-lg shadow-primary-500/30">
+                        <Layers className="w-8 h-8 text-white" />
+                    </div>
+                    <p className="text-3xl font-bold text-gray-900 mb-1 capitalize">
                         {analysis.dominantOrientation}
                     </p>
                     <p className="text-sm text-gray-600">Orientation</p>
                 </Card>
 
-                <Card className="text-center">
-                    <AlertCircle className="w-12 h-12 text-primary-600 mx-auto mb-3" />
+                <Card className="text-center hover:scale-105 transition-transform duration-300">
+                    <div className="p-2 bg-gradient-to-br from-primary-500 to-accent-500 rounded-xl w-fit mx-auto mb-3 shadow-lg shadow-primary-500/30">
+                        <AlertCircle className="w-8 h-8 text-white" />
+                    </div>
                     <p className="text-3xl font-bold text-gray-900 mb-1">
                         {analysis.hasConsistentSize ? 'Yes' : 'No'}
                     </p>

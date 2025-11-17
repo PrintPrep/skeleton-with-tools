@@ -19,44 +19,50 @@ export function Alert({
                       }: AlertProps) {
     const styles = {
         info: {
-            container: 'bg-blue-50 border-blue-200 text-blue-900',
-            icon: 'text-blue-600',
+            container: 'bg-gradient-to-r from-blue-50 via-teal-50 to-mint-50 border-teal-200 text-gray-900',
+            icon: 'text-teal-600',
             IconComponent: Info,
+            iconBg: 'bg-teal-100',
         },
         success: {
-            container: 'bg-green-50 border-green-200 text-green-900',
+            container: 'bg-gradient-to-r from-green-50 via-mint-50 to-teal-50 border-green-200 text-gray-900',
             icon: 'text-green-600',
             IconComponent: CheckCircle,
+            iconBg: 'bg-green-100',
         },
         warning: {
-            container: 'bg-yellow-50 border-yellow-200 text-yellow-900',
+            container: 'bg-gradient-to-r from-yellow-50 via-orange-50 to-pink-50 border-yellow-200 text-gray-900',
             icon: 'text-yellow-600',
             IconComponent: AlertCircle,
+            iconBg: 'bg-yellow-100',
         },
         error: {
-            container: 'bg-red-50 border-red-200 text-red-900',
+            container: 'bg-gradient-to-r from-red-50 via-pink-50 to-purple-50 border-red-200 text-gray-900',
             icon: 'text-red-600',
             IconComponent: XCircle,
+            iconBg: 'bg-red-100',
         },
     };
 
-    const { container, icon, IconComponent } = styles[type];
+    const { container, icon, IconComponent, iconBg } = styles[type];
 
     return (
         <div
             className={cn(
-                'rounded-lg border p-4 flex gap-3',
+                'rounded-2xl border-2 p-5 flex gap-4 shadow-lg',
                 container,
                 className
             )}
         >
-            <IconComponent className={cn('w-5 h-5 flex-shrink-0 mt-0.5', icon)} />
+            <div className={cn('rounded-xl p-2 flex-shrink-0 h-fit', iconBg)}>
+                <IconComponent className={cn('w-5 h-5', icon)} />
+            </div>
 
             <div className="flex-1">
                 {title && (
-                    <h4 className="font-semibold mb-1">{title}</h4>
+                    <h4 className="font-bold mb-2 text-lg">{title}</h4>
                 )}
-                <div className="text-sm">{children}</div>
+                <div className="text-sm leading-relaxed">{children}</div>
             </div>
         </div>
     );

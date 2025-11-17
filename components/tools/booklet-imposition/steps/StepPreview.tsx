@@ -1,5 +1,7 @@
 // components/tools/booklet-imposition/steps/StepPreview.tsx
 
+'use client';
+
 import React, { useEffect, useState } from 'react';
 import { useBookletStore } from '@/lib/booklet-imposition/store/useBookletStore';
 import { Button } from '@/components/ui/booklet-imposition/Button';
@@ -62,12 +64,13 @@ export function StepPreview() {
             try {
                 const previewData = await generatePreviews(processedPdfBytes, imposition.totalSheets);
                 setPreviews(previewData);
+                setProcessingStatus('complete');
             } catch (previewError) {
                 console.error('Preview generation failed:', previewError);
-                // Continue even if preview fails
+                // Continue even if preview fails - user can still download
+                setProcessingStatus('complete');
+                setError(null); // Clear error since PDF processing succeeded
             }
-
-            setProcessingStatus('complete');
         } catch (error) {
             console.error('Processing error:', error);
             setError(error instanceof Error ? error.message : 'Failed to process PDF');
@@ -83,8 +86,11 @@ export function StepPreview() {
             <div className="max-w-2xl mx-auto">
                 <Card>
                     <div className="flex flex-col items-center justify-center py-12">
-                        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-600 border-t-transparent mb-4" />
-                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        <div className="relative">
+                            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary-200 border-t-primary-600" />
+                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary-500/20 to-accent-500/20 blur-xl" />
+                        </div>
+                        <h3 className="text-xl font-semibold text-gray-900 mb-2 mt-4">
                             {isGeneratingPreviews ? 'Generating Previews...' : 'Processing PDF...'}
                         </h3>
                         <p className="text-gray-600">
@@ -157,14 +163,19 @@ export function StepPreview() {
                         {previews.map((preview, index) => (
                             <div
                                 key={index}
-                                className="border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+                                className="group border-2 border-primary-100 rounded-xl overflow-hidden hover:border-primary-300 hover:shadow-glow transition-all duration-300"
                             >
-                                <img
-                                    src={preview.thumbnailUrl}
-                                    alt={`Sheet ${preview.sheetNumber}`}
-                                    className="w-full h-auto"
-                                />
-                                <div className="p-2 bg-gray-50 text-center">
+                                <div className="relative">
+                                    <img
+                                        src={preview.thumbnailUrl}
+                                        alt={`Sheet ${preview.sheetNumber}`}
+                                        className="w-full h-auto group-hover:scale-105 transition-transform duration-300"
+                                    />
+                                    <div className="absolute top-2 right-2 bg-gradient-to-br from-primary-500 to-accent-500 text-white px-2 py-1 rounded-lg text-xs font-semibold shadow-lg">
+                                        {preview.sheetNumber}
+                                    </div>
+                                </div>
+                                <div className="p-2 bg-gradient-to-r from-primary-50/50 to-accent-50/30 text-center border-t border-primary-100">
                                     <p className="text-sm font-medium text-gray-700">
                                         Sheet {preview.sheetNumber}
                                     </p>
