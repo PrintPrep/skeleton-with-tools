@@ -1,5 +1,7 @@
 // components/tools/booklet-imposition/steps/StepSettings.tsx
 
+'use client';
+
 import React, { useState } from 'react';
 import { useBookletStore } from '@/lib/booklet-imposition/store/useBookletStore';
 import { Button } from '@/components/ui/booklet-imposition/Button';
@@ -79,9 +81,9 @@ export function StepSettings() {
                     ))}
                 </Select>
 
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+                <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-accent-50/30 rounded-xl border border-blue-200">
                     <p className="text-sm text-blue-900">
-                        <strong>Tip:</strong> Most portrait booklets use "Flip on Long Edge".
+                        <strong>💡 Tip:</strong> Most portrait booklets use "Flip on Long Edge".
                         Landscape or calendar-style booklets typically use "Flip on Short Edge".
                     </p>
                 </div>

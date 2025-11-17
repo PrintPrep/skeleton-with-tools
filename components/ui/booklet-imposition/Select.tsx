@@ -27,11 +27,11 @@ export function Select({
 
             <select
                 className={cn(
-                    'w-full px-3 py-2 border rounded-lg shadow-sm transition-colors',
+                    'w-full px-3 py-2 border rounded-xl shadow-sm transition-all duration-200',
                     'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
                     error
                         ? 'border-red-500 bg-red-50'
-                        : 'border-gray-300 bg-white hover:border-gray-400',
+                        : 'border-primary-200 bg-white hover:border-primary-300',
                     'disabled:bg-gray-100 disabled:cursor-not-allowed',
                     className
                 )}

@@ -40,4 +40,14 @@ body {
             transform: translateY(0);
         }
     }
+
+    .glass-effect {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+
+    .shadow-glow {
+        box-shadow: 0 0 20px rgba(20, 184, 166, 0.15);
+    }
 }

@@ -14,12 +14,12 @@ export function Card({ children, className, title, description }: CardProps) {
     return (
         <div
             className={cn(
-                'bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden',
+                'glass-effect rounded-2xl shadow-lg border border-primary-100/50 overflow-hidden hover:shadow-glow transition-all duration-300',
                 className
             )}
         >
             {(title || description) && (
-                <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
+                <div className="px-6 py-4 border-b border-primary-100/50 bg-gradient-to-r from-primary-50/50 to-accent-50/30">
                     {title && (
                         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
                     )}
@@ -41,7 +41,7 @@ interface CardHeaderProps {
 
 export function CardHeader({ children, className }: CardHeaderProps) {
     return (
-        <div className={cn('px-6 py-4 border-b border-gray-200 bg-gray-50', className)}>
+        <div className={cn('px-6 py-4 border-b border-primary-100/50 bg-gradient-to-r from-primary-50/50 to-accent-50/30', className)}>
             {children}
         </div>
     );
@@ -63,7 +63,7 @@ interface CardFooterProps {
 
 export function CardFooter({ children, className }: CardFooterProps) {
     return (
-        <div className={cn('px-6 py-4 border-t border-gray-200 bg-gray-50', className)}>
+        <div className={cn('px-6 py-4 border-t border-primary-100/50 bg-gradient-to-r from-primary-50/50 to-accent-50/30', className)}>
             {children}
         </div>
     );

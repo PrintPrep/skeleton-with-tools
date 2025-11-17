@@ -1,13 +1,11 @@
 // lib/booklet-imposition/pdf/renderer.ts
 
-import * as pdfjsLib from 'pdfjs-dist';
+import { getPdfJs } from './pdfjs-config';
 import { SheetPreview } from '@/types/booklet-imposition/pdf.types';
 import { PREVIEW_THUMBNAIL } from '@/lib/booklet-imposition/constants';
 
-// Configure PDF.js worker
-if (typeof window !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-}
+// Get configured PDF.js instance
+const pdfjsLib = getPdfJs();
 
 /**
  * Generates preview thumbnails for an imposed PDF
@@ -21,33 +19,52 @@ export async function generatePreviews(
     totalSheets: number
 ): Promise<SheetPreview[]> {
     try {
+        console.log('Starting preview generation...');
+
         // Load the PDF document
         const loadingTask = pdfjsLib.getDocument({ data: pdfBuffer });
         const pdf = await loadingTask.promise;
+
+        console.log(`PDF loaded successfully. Pages: ${pdf.numPages}`);
 
         const previews: SheetPreview[] = [];
 
         // Generate thumbnail for each page (each page is one spread)
         for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-            const page = await pdf.getPage(pageNum);
-            const thumbnailUrl = await renderPageToImage(page);
+            try {
+                const page = await pdf.getPage(pageNum);
+                const thumbnailUrl = await renderPageToImage(page);
 
-            // Determine which pages are on this spread
-            // This is a simplified version - in a real implementation,
-            // you'd track this from the imposition result
-            const sheetNumber = Math.ceil(pageNum / 2);
+                // Determine which pages are on this spread
+                const sheetNumber = Math.ceil(pageNum / 2);
 
-            previews.push({
-                sheetNumber,
-                thumbnailUrl,
-                leftPageNumber: null, // Would be populated from imposition data
-                rightPageNumber: null, // Would be populated from imposition data
-            });
+                previews.push({
+                    sheetNumber,
+                    thumbnailUrl,
+                    leftPageNumber: null,
+                    rightPageNumber: null,
+                });
+
+                console.log(`Generated preview ${pageNum}/${pdf.numPages}`);
+            } catch (pageError) {
+                console.error(`Error rendering page ${pageNum}:`, pageError);
+                // Continue with other pages even if one fails
+            }
         }
 
+        console.log(`Preview generation complete. Generated ${previews.length} previews.`);
         return previews;
     } catch (error) {
         console.error('Error generating previews:', error);
+
+        // Provide more detailed error information
+        if (error instanceof Error) {
+            if (error.message.includes('worker')) {
+                throw new Error('PDF.js worker failed to load. Please refresh the page and try again.');
+            }
+            throw new Error(`Preview generation failed: ${error.message}`);
+        }
+
         throw new Error('Failed to generate preview images');
     }
 }

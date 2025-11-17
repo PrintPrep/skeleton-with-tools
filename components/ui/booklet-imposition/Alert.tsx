@@ -19,22 +19,22 @@ export function Alert({
                       }: AlertProps) {
     const styles = {
         info: {
-            container: 'bg-blue-50 border-blue-200 text-blue-900',
+            container: 'bg-gradient-to-r from-blue-50 to-accent-50/30 border-blue-200 text-blue-900',
             icon: 'text-blue-600',
             IconComponent: Info,
         },
         success: {
-            container: 'bg-green-50 border-green-200 text-green-900',
+            container: 'bg-gradient-to-r from-green-50 to-primary-50/30 border-green-200 text-green-900',
             icon: 'text-green-600',
             IconComponent: CheckCircle,
         },
         warning: {
-            container: 'bg-yellow-50 border-yellow-200 text-yellow-900',
+            container: 'bg-gradient-to-r from-yellow-50 to-orange-50/30 border-yellow-200 text-yellow-900',
             icon: 'text-yellow-600',
             IconComponent: AlertCircle,
         },
         error: {
-            container: 'bg-red-50 border-red-200 text-red-900',
+            container: 'bg-gradient-to-r from-red-50 to-pink-50/30 border-red-200 text-red-900',
             icon: 'text-red-600',
             IconComponent: XCircle,
         },

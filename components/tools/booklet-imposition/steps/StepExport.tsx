@@ -33,8 +33,8 @@ export function StepExport() {
     return (
         <div className="max-w-3xl mx-auto space-y-6">
             <div className="text-center mb-8">
-                <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-                    <CheckCircle className="w-12 h-12 text-green-600" />
+                <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-primary-500 rounded-2xl mb-4 shadow-xl shadow-green-500/30">
+                    <CheckCircle className="w-12 h-12 text-white" />
                 </div>
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">
                     Booklet Ready!

@@ -27,11 +27,11 @@ export function ProgressBar({ currentStep }: ProgressBarProps) {
                         <div className="flex flex-col items-center relative">
                             <div
                                 className={cn(
-                                    'w-12 h-12 rounded-full flex items-center justify-center font-semibold transition-all',
+                                    'w-12 h-12 rounded-full flex items-center justify-center font-semibold transition-all duration-300',
                                     currentStep > step.number
-                                        ? 'bg-primary-600 text-white'
+                                        ? 'bg-gradient-to-br from-primary-500 to-accent-500 text-white shadow-lg shadow-primary-500/30'
                                         : currentStep === step.number
-                                            ? 'bg-primary-600 text-white ring-4 ring-primary-100'
+                                            ? 'bg-gradient-to-br from-primary-500 to-accent-500 text-white ring-4 ring-primary-200 shadow-lg shadow-primary-500/40'
                                             : 'bg-gray-200 text-gray-500'
                                 )}
                             >
@@ -46,7 +46,7 @@ export function ProgressBar({ currentStep }: ProgressBarProps) {
                                 className={cn(
                                     'mt-2 text-sm font-medium transition-colors',
                                     currentStep >= step.number
-                                        ? 'text-primary-600'
+                                        ? 'text-primary-700'
                                         : 'text-gray-500'
                                 )}
                             >
@@ -59,9 +59,9 @@ export function ProgressBar({ currentStep }: ProgressBarProps) {
                             <div className="flex-1 h-1 mx-2 mb-8">
                                 <div
                                     className={cn(
-                                        'h-full rounded-full transition-all',
+                                        'h-full rounded-full transition-all duration-500',
                                         currentStep > step.number
-                                            ? 'bg-primary-600'
+                                            ? 'bg-gradient-to-r from-primary-500 to-accent-500'
                                             : 'bg-gray-200'
                                     )}
                                 />
