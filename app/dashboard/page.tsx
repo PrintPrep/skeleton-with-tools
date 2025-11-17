@@ -1,64 +1,53 @@
 // app/dashboard/page.tsx
 
-import { DashboardNavbar } from "@/components/dashboard/DashboardNavbar";
-import { ToolCard } from "@/components/dashboard/ToolCard";
-import { Sidebar } from "@/components/dashboard/Sidebar";
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { DashboardNav } from '@/components/dashboard/DashboardNav';
+import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
+import { ToolCards } from '@/components/dashboard/ToolCards';
+import { RecentProjects } from '@/components/dashboard/RecentProjects';
+import { AssetsPreview } from '@/components/dashboard/AssetsPreview';
 
 export default function DashboardPage() {
-    const tools = [
-        {
-            title: "PDF Toolkit",
-            description: "Split, merge & organize PDFs.",
-            link: "/tools/pdf-toolkit",
-            icon: "📄",
-            color: "from-cyan-500 to-blue-500"
-        },
-        {
-            title: "Booklet Imposition",
-            description: "Create print-ready booklets instantly.",
-            link: "/tools/booklet-imposition",
-            icon: "📖",
-            color: "from-blue-500 to-indigo-500"
-        },
-        {
-            title: "Ticket Layout + Numbering",
-            description: "Generate grids with sequential numbering.",
-            link: "/tools/ticket-layout",
-            icon: "🎫",
-            color: "from-purple-500 to-pink-500"
-        },
-        {
-            title: "Sticker Pack Tool",
-            description: "Arrange stickers for print sheets.",
-            link: "/tools/sticker-pack",
-            icon: "✨",
-            color: "from-pink-500 to-red-500"
-        },
-    ];
+    const [isPro, setIsPro] = useState(false);
+    const [userName, setUserName] = useState('User');
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Simulate fetching user data
+        setTimeout(() => {
+            setUserName('Sithum');
+            setIsPro(false); // Change to true to see Pro experience
+            setIsLoading(false);
+        }, 500);
+    }, []);
+
+    if (isLoading) {
+        return (
+            <div className="w-full h-screen bg-gradient-to-br from-cyan-50 to-white flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-12 h-12 rounded-full border-4 border-gray-300 border-t-teal-500 animate-spin mx-auto mb-4" />
+                    <p className="text-gray-600 font-medium">Loading your dashboard...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <main className="min-h-screen bg-gradient-to-br from-cyan-50 via-blue-50 to-purple-50 text-slate-800 px-6 md:px-12 lg:px-24 py-16 relative overflow-hidden">
-            {/* Decorative background elements */}
-            <div className="fixed top-20 left-10 w-96 h-96 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob pointer-events-none"></div>
-            <div className="fixed bottom-20 right-10 w-96 h-96 bg-cyan-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000 pointer-events-none"></div>
+        <div className="w-full min-h-screen bg-gradient-to-br from-cyan-50 via-white to-teal-50">
+            <DashboardNav isPro={isPro} />
+            <DashboardHeader isPro={isPro} userName={userName} />
+            <ToolCards isPro={isPro} />
+            <RecentProjects isPro={isPro} />
+            <AssetsPreview isPro={isPro} />
 
-            <DashboardNavbar />
-
-            {/* ===== TOOL GRID ===== */}
-            <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12 relative z-10">
-                {tools.map((tool) => (
-                    <ToolCard
-                        key={tool.title}
-                        title={tool.title}
-                        description={tool.description}
-                        link={tool.link}
-                        icon={tool.icon}
-                        color={tool.color}
-                    />
-                ))}
-            </section>
-
-            <Sidebar />
-        </main>
+            {/* Footer */}
+            <footer className="mt-20 py-8 px-4 border-t border-gray-200">
+                <div className="max-w-7xl mx-auto text-center text-gray-600 text-sm">
+                    <p>&copy; 2025 PrintPrev. All rights reserved.</p>
+                </div>
+            </footer>
+        </div>
     );
 }
