@@ -18,12 +18,12 @@ export function StepUpload() {
     };
 
     return (
-        <div className="max-w-2xl mx-auto space-y-6">
-            <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+        <div className="max-w-3xl mx-auto space-y-8">
+            <div className="text-center mb-12">
+                <h2 className="text-4xl font-bold text-gray-900 mb-3 bg-gradient-to-r from-teal-600 to-teal-700 bg-clip-text text-transparent">
                     Upload Your PDF
                 </h2>
-                <p className="text-gray-600">
+                <p className="text-lg text-gray-600 font-medium">
                     Select a PDF file to create a booklet imposition
                 </p>
             </div>
@@ -42,15 +42,15 @@ export function StepUpload() {
                 The pages will be in the correct order after folding.
             </Alert>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-4">
                 <Button
                     size="lg"
                     onClick={handleNext}
                     disabled={!uploadedFile}
-                    className="min-w-[150px]"
+                    className="min-w-[180px]"
                 >
                     Next
-                    <ArrowRight className="ml-2 w-5 h-5" />
+                    <ArrowRight className="ml-2 w-6 h-6" />
                 </Button>
             </div>
         </div>
