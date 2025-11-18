@@ -1,106 +1,184 @@
-// app/tools/page.tsx
+// app/tools/sticker-pack/editor/page.tsx
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { Sparkles, Layout, Download, Zap, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import Header from '@/components/tools/sticker-pack/workspace/Header';
+import ControlPanel from '@/components/tools/sticker-pack/workspace/ControlPanel';
+import Workstation from '@/components/tools/sticker-pack/workspace/Workstation';
+import EditItemDialog from '@/components/tools/sticker-pack/dialogs/EditItemDialog';
+import ConfirmDialog from '@/components/tools/sticker-pack/dialogs/ConfirmDialog';
+import { StickerItem, PageSettings, PackingSettings, PackedSticker } from '@/lib/sticker-pack/types';
+import { generateId, getImageDimensions, readFileAsDataURL } from '@/lib/sticker-pack/utils';
+import { packStickers } from '@/lib/sticker-pack/packing-algorithm';
+import { generatePDF } from '@/lib/sticker-pack/pdf-generator';
 
-export default function LandingPage() {
-    const router = useRouter();
+export default function WorkspacePage() {
+    const [items, setItems] = useState<StickerItem[]>([]);
+    const [pageSettings, setPageSettings] = useState<PageSettings>({
+        type: 'A4',
+        width: 210,
+        height: 297,
+    });
+    const [packingSettings, setPackingSettings] = useState<PackingSettings>({
+        horizontalOnly: false,
+        verticalOnly: false,
+        autoRotate: true,
+        margin: 3,
+    });
+    const [packedStickers, setPackedStickers] = useState<PackedSticker[]>([]);
+    const [editingItem, setEditingItem] = useState<StickerItem | null>(null);
+    const [confirmDialog, setConfirmDialog] = useState<{
+        isOpen: boolean;
+        title: string;
+        message: string;
+        onConfirm: () => void;
+    }>({
+        isOpen: false,
+        title: '',
+        message: '',
+        onConfirm: () => {},
+    });
+    const [isExporting, setIsExporting] = useState(false);
+
+    // Repack stickers whenever items, page settings, or packing settings change
+    useEffect(() => {
+        if (items.length > 0) {
+            const packed = packStickers(items, pageSettings, packingSettings);
+            setPackedStickers(packed);
+        } else {
+            setPackedStickers([]);
+        }
+    }, [items, pageSettings, packingSettings]);
+
+    const handleUpload = async (files: FileList) => {
+        const newItems: StickerItem[] = [];
+
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+
+            try {
+                const imageUrl = await readFileAsDataURL(file);
+                const dimensions = await getImageDimensions(file);
+
+                // Default to 50mm width, maintaining aspect ratio
+                const defaultWidth = 50;
+                const aspectRatio = dimensions.height / dimensions.width;
+                const defaultHeight = defaultWidth * aspectRatio;
+
+                newItems.push({
+                    id: generateId(),
+                    name: file.name.replace(/\.[^/.]+$/, ''),
+                    imageUrl,
+                    imageFile: file,
+                    width: defaultWidth,
+                    height: defaultHeight,
+                    count: 1,
+                    lockAspectRatio: true,
+                    originalWidth: defaultWidth,
+                    originalHeight: defaultHeight,
+                });
+            } catch (error) {
+                console.error('Error loading image:', error);
+            }
+        }
+
+        setItems([...items, ...newItems]);
+    };
+
+    const handleClearAll = () => {
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Clear All Stickers?',
+            message: `Are you sure you want to delete all ${items.length} sticker(s)? This action cannot be undone.`,
+            onConfirm: () => {
+                setItems([]);
+                setConfirmDialog({ ...confirmDialog, isOpen: false });
+            },
+        });
+    };
+
+    const handleDeleteItem = (id: string) => {
+        const item = items.find((i) => i.id === id);
+        if (!item) return;
+
+        setConfirmDialog({
+            isOpen: true,
+            title: 'Delete Sticker?',
+            message: `Are you sure you want to delete "${item.name}"? This action cannot be undone.`,
+            onConfirm: () => {
+                setItems(items.filter((i) => i.id !== id));
+                setConfirmDialog({ ...confirmDialog, isOpen: false });
+            },
+        });
+    };
+
+    const handleEditItem = (item: StickerItem) => {
+        setEditingItem(item);
+    };
+
+    const handleSaveEdit = (updatedItem: StickerItem) => {
+        setItems(items.map((item) => (item.id === updatedItem.id ? updatedItem : item)));
+        setEditingItem(null);
+    };
+
+    const handleExport = async () => {
+        if (packedStickers.length === 0) return;
+
+        setIsExporting(true);
+        try {
+            await generatePDF(packedStickers, pageSettings);
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate PDF. Please try again.');
+        } finally {
+            setIsExporting(false);
+        }
+    };
+
+    const totalStickersUsed = items.reduce((sum, item) => sum + item.count, 0);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#E0F7F4] via-[#B3EDE5] to-[#80E3D7]">
-            {/* Hero Section */}
-            <div className="container mx-auto px-4 py-20">
-                <div className="text-center">
-                    <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/30 px-4 py-2 backdrop-blur">
-                        <Sparkles className="h-5 w-5 text-[#00BFA6]" />
-                        <span className="text-sm font-semibold text-gray-700">
-              Smart Sticker Pack Creator
-            </span>
-                    </div>
+        <div className="flex h-screen flex-col bg-gradient-to-br from-[#E0F7F4] via-[#B3EDE5] to-[#80E3D7] p-4">
+            <div className="mb-4">
+                <Header onExport={handleExport} isExporting={isExporting} />
+            </div>
 
-                    <h1 className="mb-6 text-5xl font-bold leading-tight text-gray-900 md:text-7xl">
-                        Design Stunning
-                        <br />
-                        <span className="text-[#00BFA6]">Stickers & Cards</span> 🎨
-                    </h1>
+            <div className="flex flex-1 gap-4 overflow-hidden">
+                <ControlPanel
+                    items={items}
+                    packingSettings={packingSettings}
+                    onUpload={handleUpload}
+                    onClearAll={handleClearAll}
+                    onDeleteItem={handleDeleteItem}
+                    onEditItem={handleEditItem}
+                    onPackingSettingsChange={setPackingSettings}
+                    totalStickersUsed={totalStickersUsed}
+                />
 
-                    <p className="mx-auto mb-10 max-w-2xl text-lg text-gray-700 md:text-xl">
-                        Create, customize, and export printable designs effortlessly — a Canva-style
-                        experience made just for sticker creators.
-                    </p>
-
-                    <button
-                        onClick={() => router.push('/tools/sticker-pack/editor')}
-                        className="group inline-flex items-center gap-3 rounded-lg bg-[#00BFA6] px-8 py-4 text-lg font-semibold text-white shadow-xl transition-all hover:bg-[#00D1B2] hover:shadow-2xl hover:scale-105"
-                    >
-                        Start Designing
-                        <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-                    </button>
-
-                    <p className="mt-4 text-sm text-gray-600">
-                        No accounts. No clutter. Just creativity unleashed.
-                    </p>
-                </div>
-
-                {/* Features */}
-                <div className="mx-auto mt-20 grid max-w-5xl gap-8 md:grid-cols-3">
-                    <div className="rounded-2xl bg-white/60 p-6 backdrop-blur transition-all hover:bg-white/80 hover:shadow-lg">
-                        <div className="mb-4 inline-flex rounded-full bg-[#00BFA6]/10 p-3">
-                            <Upload className="h-6 w-6 text-[#00BFA6]" />
-                        </div>
-                        <h3 className="mb-2 text-xl font-bold text-gray-900">Easy Upload</h3>
-                        <p className="text-gray-600">
-                            Upload multiple images in seconds. Supports JPEG, PNG formats.
-                        </p>
-                    </div>
-
-                    <div className="rounded-2xl bg-white/60 p-6 backdrop-blur transition-all hover:bg-white/80 hover:shadow-lg">
-                        <div className="mb-4 inline-flex rounded-full bg-[#00BFA6]/10 p-3">
-                            <Layout className="h-6 w-6 text-[#00BFA6]" />
-                        </div>
-                        <h3 className="mb-2 text-xl font-bold text-gray-900">Smart Layout</h3>
-                        <p className="text-gray-600">
-                            Our algorithm optimizes sticker placement for maximum efficiency.
-                        </p>
-                    </div>
-
-                    <div className="rounded-2xl bg-white/60 p-6 backdrop-blur transition-all hover:bg-white/80 hover:shadow-lg">
-                        <div className="mb-4 inline-flex rounded-full bg-[#00BFA6]/10 p-3">
-                            <Download className="h-6 w-6 text-[#00BFA6]" />
-                        </div>
-                        <h3 className="mb-2 text-xl font-bold text-gray-900">Export PDF</h3>
-                        <p className="text-gray-600">
-                            Download high-quality, print-ready PDFs with one click.
-                        </p>
-                    </div>
+                <div className="flex-1 overflow-hidden rounded-lg">
+                    <Workstation
+                        pageSettings={pageSettings}
+                        packedStickers={packedStickers}
+                        onPageSettingsChange={setPageSettings}
+                    />
                 </div>
             </div>
 
-            {/* Footer */}
-            <div className="container mx-auto px-4 py-8">
-                <div className="text-center text-sm text-gray-600">
-                    Made with ❤️ for creators
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function Upload({ className }: { className?: string }) {
-    return (
-        <svg
-            className={className}
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2}
-        >
-            <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+            {/* Dialogs */}
+            <EditItemDialog
+                isOpen={editingItem !== null}
+                item={editingItem}
+                onSave={handleSaveEdit}
+                onCancel={() => setEditingItem(null)}
             />
-        </svg>
+
+            <ConfirmDialog
+                isOpen={confirmDialog.isOpen}
+                title={confirmDialog.title}
+                message={confirmDialog.message}
+                onConfirm={confirmDialog.onConfirm}
+                onCancel={() => setConfirmDialog({ ...confirmDialog, isOpen: false })}
+            />
+        </div>
     );
 }

@@ -1,4 +1,4 @@
-// app/lib/ticket-layout/zustandStore.ts
+// lib/ticket-layout/zustandStore.ts
 
 import { create } from "zustand";
 

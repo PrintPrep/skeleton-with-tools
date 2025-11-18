@@ -1,3 +1,5 @@
+// lib/booklet-imposition/pdfjs.ts
+
 import { GlobalWorkerOptions } from "pdfjs-dist";
 import workerSrc from "pdfjs-dist/pdf.worker.mjs?url";
 
