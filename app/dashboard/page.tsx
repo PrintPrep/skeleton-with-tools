@@ -1,3 +1,4 @@
+// app/dashboard/page.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -8,6 +9,7 @@ import { RecentProjects } from '@/components/dashboard/RecentProjects';
 import { AssetsPreview } from '@/components/dashboard/AssetsPreview';
 import { useUser, useAuth } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
+import { syncUserToDatabase } from '@/lib/sync-user';
 
 export default function DashboardPage() {
     const [isPro, setIsPro] = useState(false);
@@ -18,24 +20,41 @@ export default function DashboardPage() {
     const router = useRouter();
 
     useEffect(() => {
-        // Redirect if not authenticated
-        if (isLoaded && !user) {
+        // If user is not loaded yet, wait
+        if (!isLoaded) return;
+
+        // If no user is found, redirect to sign-in
+        if (!user) {
             router.push('/sign-in');
             return;
         }
 
         // Set user data when user is loaded
-        if (isLoaded && user) {
-            setUserName(user.firstName || user.username || 'User');
-            
-            // Simulate fetching user subscription data
-            setTimeout(() => {
+        const userName = user.firstName || user.username || 'User';
+        setUserName(userName);
+        
+        const loadDashboard = async () => {
+            try {
+                // Sync user to database
+                await syncUserToDatabase(
+                    user.id,
+                    user.primaryEmailAddress?.emailAddress || user.emailAddresses[0]?.emailAddress || '',
+                    userName
+                );
+
                 // You can replace this with actual subscription check
                 // For now, we'll set isPro based on some condition
                 setIsPro(user?.publicMetadata?.isPro === true);
+                
+            } catch (error) {
+                console.error('Error in dashboard loading:', error);
+            } finally {
                 setIsLoading(false);
-            }, 500);
-        }
+            }
+        };
+
+        loadDashboard();
+
     }, [user, isLoaded, router]);
 
     // Show loading state

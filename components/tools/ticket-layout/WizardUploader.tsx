@@ -34,7 +34,7 @@ export default function WizardUploader() {
                                 ? "bg-[#00BFA6] text-white shadow-sm hover:bg-[#00D1B2] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[#00BFA6]"
                                 : "cursor-not-allowed bg-gray-200 text-gray-400"
                         }`}
-                        onClick={() => router.push("/tools/ticket-layout/editor")}
+                        onClick={() => router.push("/tools/ticket-layout")}
                     >
                         Continue to workspace
                     </button>
