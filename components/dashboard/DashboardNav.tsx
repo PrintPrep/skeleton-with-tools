@@ -1,13 +1,15 @@
-// components/dashboard/DashboardHeader.tsx
+// components/dashboard/DashboardNav.tsx
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, ChevronDown, LogOut, Settings, CreditCard } from 'lucide-react';
+import { Menu, X, ChevronDown, Settings, CreditCard } from 'lucide-react';
 import Link from 'next/link';
+import { UserButton, useUser } from '@clerk/nextjs';
 
 export const DashboardNav = ({ isPro = false }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isAccountOpen, setIsAccountOpen] = useState(false);
+    const { user } = useUser();
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -26,6 +28,11 @@ export const DashboardNav = ({ isPro = false }) => {
                         <div className="text-2xl font-bold bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">
                             PrintPrev
                         </div>
+                        {isPro && (
+                            <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-0.5 rounded-full">
+                                PRO
+                            </span>
+                        )}
                     </Link>
 
                     {/* Desktop Menu */}
@@ -39,17 +46,29 @@ export const DashboardNav = ({ isPro = false }) => {
                             <button className="text-gray-700 hover:text-teal-600 transition font-medium flex items-center gap-1">
                                 Tools <ChevronDown size={16} />
                             </button>
-                            <div className="absolute left-0 mt-0 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                                <Link href="/tools/pdf-toolkit" className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded-t-lg">
+                            <div className="absolute left-0 mt-0 w-48 bg-white rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 border border-gray-200">
+                                <Link 
+                                    href="/tools/pdf-toolkit" 
+                                    className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded-t-lg transition-colors"
+                                >
                                     PDF Toolkit
                                 </Link>
-                                <Link href="/tools/booklet-imposition" className="block px-4 py-3 text-gray-700 hover:bg-teal-50">
+                                <Link 
+                                    href="/tools/booklet-imposition" 
+                                    className="block px-4 py-3 text-gray-700 hover:bg-teal-50 transition-colors"
+                                >
                                     Booklet Imposition
                                 </Link>
-                                <Link href="/tools/ticket-layout" className="block px-4 py-3 text-gray-700 hover:bg-teal-50">
+                                <Link 
+                                    href="/tools/ticket-layout" 
+                                    className="block px-4 py-3 text-gray-700 hover:bg-teal-50 transition-colors"
+                                >
                                     Ticket Layout
                                 </Link>
-                                <Link href="/tools/sticker-pack" className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded-b-lg">
+                                <Link 
+                                    href="/tools/sticker-pack" 
+                                    className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded-b-lg transition-colors"
+                                >
                                     Sticker Pack
                                 </Link>
                             </div>
@@ -62,75 +81,122 @@ export const DashboardNav = ({ isPro = false }) => {
                             </Link>
                         ) : (
                             <div className="relative group cursor-help">
-                                <button className="text-gray-400 font-medium flex items-center gap-1">
+                                <span className="text-gray-400 font-medium flex items-center gap-1">
                                     Assets
                                     <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">Pro</span>
-                                </button>
+                                </span>
+                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-sm rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap">
+                                    Upgrade to Pro to access assets
+                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
+                                </div>
                             </div>
                         )}
 
                         {/* Pricing/Upgrade */}
                         {!isPro && (
-                            <Link href="/pricing" className="text-teal-600 hover:text-cyan-600 transition font-bold">
-                                Upgrade
+                            <Link 
+                                href="/pricing" 
+                                className="bg-gradient-to-r from-orange-400 to-pink-400 text-white px-4 py-2 rounded-full font-bold hover:shadow-lg hover:scale-105 transition-all"
+                            >
+                                Upgrade to Pro
                             </Link>
                         )}
                     </div>
 
-                    {/* Account Menu */}
-                    <div className="hidden md:flex items-center gap-4 relative">
-                        <button
-                            onClick={() => setIsAccountOpen(!isAccountOpen)}
-                            className="w-10 h-10 rounded-full bg-gradient-to-r from-teal-400 to-cyan-400 hover:shadow-lg transition-all cursor-pointer"
-                        />
-
-                        {isAccountOpen && (
-                            <div className="absolute right-0 mt-32 w-48 bg-white rounded-lg shadow-lg">
-                                <Link href="/dashboard/settings" className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-teal-50">
-                                    <Settings size={16} /> Settings
-                                </Link>
-                                <Link href="/dashboard/billing" className="flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-teal-50">
-                                    <CreditCard size={16} /> Billing
-                                </Link>
-                                <button className="w-full flex items-center gap-2 px-4 py-3 text-gray-700 hover:bg-teal-50 rounded-b-lg">
-                                    <LogOut size={16} /> Logout
-                                </button>
-                            </div>
-                        )}
+                    {/* Account Menu with Clerk UserButton */}
+                    <div className="hidden md:flex items-center gap-4">
+                        <div className="relative">
+                            <UserButton 
+                                afterSignOutUrl="/"
+                                appearance={{
+                                    elements: {
+                                        avatarBox: "w-10 h-10 border-2 border-teal-200 hover:border-teal-400 transition-colors",
+                                        userButtonTrigger: "focus:shadow-lg"
+                                    }
+                                }}
+                            />
+                        </div>
                     </div>
 
                     {/* Mobile Menu Button */}
-                    <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
+                    <button 
+                        className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
                         {isOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 </div>
 
                 {/* Mobile Menu */}
                 {isOpen && (
-                    <div className="md:hidden pb-4 space-y-2 bg-white/95 backdrop-blur-md rounded-lg mt-2">
-                        <Link href="/dashboard" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 rounded">
+                    <div className="md:hidden pb-4 space-y-2 bg-white/95 backdrop-blur-md rounded-lg mt-2 border border-gray-200 shadow-lg">
+                        <div className="px-4 py-3 border-b border-gray-200">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-teal-400 to-cyan-400" />
+                                <div>
+                                    <p className="font-medium text-gray-900">
+                                        {user?.firstName || user?.username || 'User'}
+                                    </p>
+                                    <p className="text-sm text-gray-500">
+                                        {isPro ? 'Pro Plan' : 'Free Plan'}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <Link 
+                            href="/dashboard" 
+                            className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
                             Dashboard
                         </Link>
-                        <Link href="/dashboard/tools/pdf-toolkit" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 rounded">
+                        <Link 
+                            href="/tools/pdf-toolkit" 
+                            className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
                             PDF Toolkit
                         </Link>
-                        <Link href="/dashboard/tools/booklet" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 rounded">
+                        <Link 
+                            href="/tools/booklet-imposition" 
+                            className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
                             Booklet Imposition
                         </Link>
-                        <Link href="/dashboard/tools/tickets" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 rounded">
+                        <Link 
+                            href="/tools/ticket-layout" 
+                            className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
                             Ticket Layout
                         </Link>
-                        <Link href="/dashboard/tools/sticker-pack" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 rounded">
+                        <Link 
+                            href="/tools/sticker-pack" 
+                            className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
                             Sticker Pack
                         </Link>
+                        
                         {isPro && (
-                            <Link href="/dashboard/assets" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 rounded">
+                            <Link 
+                                href="/dashboard/assets" 
+                                className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
+                                onClick={() => setIsOpen(false)}
+                            >
                                 Assets
                             </Link>
                         )}
+                        
                         {!isPro && (
-                            <Link href="/pricing" className="block px-4 py-2 text-teal-600 font-bold hover:bg-teal-50 rounded">
-                                Upgrade
+                            <Link 
+                                href="/pricing" 
+                                className="block px-4 py-3 bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold rounded mx-4 text-center hover:shadow-lg transition-all"
+                                onClick={() => setIsOpen(false)}
+                            >
+                                Upgrade to Pro
                             </Link>
                         )}
                     </div>

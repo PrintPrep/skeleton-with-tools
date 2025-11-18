@@ -9,7 +9,11 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.35.2",
+    "@prisma/client": "^6.19.0",
+    "@supabase/supabase-js": "^2.81.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.2.3",
     "file-saver": "^2.0.5",
     "jspdf": "^3.0.3",
     "lucide-react": "^0.553.0",
@@ -20,7 +24,7 @@
     "react-dom": "19.2.0",
     "react-dropzone": "^14.3.8",
     "react-icons": "^5.5.0",
-    "tailwind": "^4.0.0",
+    "tailwind": "^2.3.1",
     "uuid": "^13.0.0",
     "zustand": "^5.0.8"
   },
@@ -31,6 +35,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.0.3",
+    "prisma": "^6.19.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

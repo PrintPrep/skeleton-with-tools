@@ -1,5 +1,6 @@
 // app/layout.tsx
 import "./globals.css";
+import { ClerkProvider } from '@clerk/nextjs';
 
 export const metadata = {
     title: "PrintPrev",
@@ -14,7 +15,9 @@ export default function RootLayout({
     return (
         <html lang="en">
         <body className="antialiased bg-white text-gray-900">
-        {children}
+        <ClerkProvider>
+            {children}
+        </ClerkProvider>
         </body>
         </html>
     );
