@@ -21,7 +21,7 @@ export const DashboardHeader = ({ isPro = false, userName = 'User' }: DashboardH
                 {/* Welcome Greeting */}
                 <div className="mb-8">
                     <h1 className="text-4xl font-bold text-gray-900">
-                        Welcome back, {displayName} 👋
+                        Welcome {displayName} 👋
                     </h1>
                     <p className="text-gray-600 mt-2">
                         {isPro 
