@@ -10,7 +10,7 @@ export default function WizardPage() {
     const [step, setStep] = useState(1);
 
     return (
-        <main className="relative mx-auto max-w-4xl px-6 py-12 text-center">
+        <main className="relative mx-auto max-w-4xl px-6 py-12 text-center bg-gradient-to-br from-[#E0F7F4] to-gray-100 relative overflow-hidden">
             <h1 className="text-xl font-bold mb-10 text-gray-800 tracking-tight">
                 Ticket & Card Wizard
             </h1>

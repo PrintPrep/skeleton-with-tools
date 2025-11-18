@@ -78,7 +78,7 @@ export const ToolCards = ({ isPro = false }) => {
             iconColor: 'text-purple-600',
             steps: ['Choose grid size', 'Add numbering', 'Export sheet'],
             proFeature: 'Save to Assets',
-            href: '/tools/ticket-layout'
+            href: '/tools/ticket-layout/wizard'
         },
         {
             icon: Sticker,

@@ -1,38 +1,71 @@
-// app/tools/ticket-layout/page.tsx
+// app/tools/ticket-layout/editor/page.tsx
 
-import Link from "next/link";
+"use client";
+import WizardUploader from "@/components/tools/ticket-layout/WizardUploader";
+import OptimizePanel from "@/components/tools/ticket-layout/OptimizePanel";
+import WorkspaceLayout from "@/components/tools/ticket-layout/WorkspaceLayout";
 
-export default function HomePage() {
+export default function WorkspacePage() {
     return (
-        <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#E0F7F4] to-gray-100 px-6 relative overflow-hidden">
+        <main className="relative min-h-screen overflow-hidden bg-[radial-gradient(circle_at_top_right,#E0F7F4_0%,#f5f7ff_45%,#eef2ff_100%)] px-4 py-6 sm:px-6 lg:px-8">
 
-            {/* Decorative blur blobs */}
-            <div className="absolute -top-12 -left-12 w-80 h-80 rounded-full bg-[#00BFA6]/20 filter blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-12 -right-12 w-96 h-96 rounded-full bg-[#00BFA6]/10 filter blur-3xl pointer-events-none" />
+            {/* background texture */}
+            <div
+                className="pointer-events-none absolute inset-0 opacity-40"
+                style={{
+                    backgroundImage:
+                        "linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(0deg, rgba(255,255,255,0.3) 1px, transparent 1px)",
+                    backgroundSize: "120px 120px",
+                }}
+            />
 
-            <section className="text-center max-w-5xl z-10">
-                <h1 className="font-heading text-6xl sm:text-7xl md:text-8xl font-semibold text-gray-800 mb-8 leading-tight">
-                    Design Stunning <span className="text-[#00BFA6]">Tickets</span> & Cards 🎨
-                </h1>
+            <div className="relative mx-auto flex max-w-7xl flex-col gap-8">
 
-                <p className="text-gray-600 text-xl sm:text-2xl md:text-3xl mb-14 leading-relaxed max-w-3xl mx-auto">
-                    Create, customize, and export printable designs effortlessly — a Canva-style experience made just for ticket creators.
-                </p>
+                {/* App bar */}
+                <header className="rounded-lg border border-white/60 bg-white/80 px-6 py-4 shadow-lg backdrop-blur">
+                    <div className="flex flex-wrap items-center gap-4">
+                        <div>
+                            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#00BFA6]">
+                                Workspace
+                            </p>
+                            <h1 className="text-xl font-bold text-gray-800">Ticket builder</h1>
+                        </div>
+                        <div className="ms-auto flex items-center gap-3">
+                            <button className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200">
+                                Share
+                            </button>
+                            <button className="rounded-lg bg-[#00BFA6] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#00D1B2] hover:shadow-lg">
+                                Export
+                            </button>
+                        </div>
+                    </div>
+                </header>
 
-                <Link href="/tools/ticket-layout/wizard" className="relative group inline-block select-none" aria-label="Start designing">
-                    {/* Outer glowing aura */}
-                    <div className="absolute -left-10 -right-10 -top-5 -bottom-5 rounded-full bg-gradient-to-r from-[#00BFA6]/40 to-[#00D1B2]/40 filter blur-3xl opacity-70 group-hover:opacity-90 transition-all duration-500" aria-hidden="true" />
+                {/* Two-column layout */}
+                <div className="flex flex-col gap-8 lg:flex-row lg:gap-10">
 
-                    {/* Button body */}
-                    <span className="relative inline-flex justify-center items-center min-w-[320px] sm:min-w-[360px] md:min-w-[420px] bg-[#00BFA6] text-white font-heading text-2xl sm:text-3xl px-12 py-5 rounded-lg shadow-lg transition-all duration-300 transform group-hover:-translate-y-1 group-active:scale-95 group-hover:bg-[#00D1B2] group-hover:shadow-xl">
-                        Start Designing →
-                    </span>
-                </Link>
+                    {/* Left column - Optimize Panel */}
+                    <div className="w-full flex-none lg:w-80">
+                        <div className="rounded-lg border border-white/60 bg-white/80 p-5 shadow-lg backdrop-blur transition hover:border-[#00BFA6]">
+                            <OptimizePanel />
+                        </div>
+                    </div>
 
-                <p className="mt-10 text-base sm:text-lg text-gray-500">
-                    No accounts. No clutter. Just creativity unleashed.
-                </p>
-            </section>
+                    {/* Right column - Workspace + Uploader */}
+                    <div className="flex-1">
+                        <div className="h-full rounded-lg border border-white/60 bg-white/80 p-6 lg:p-8 shadow-lg backdrop-blur transition hover:border-[#00BFA6]">
+
+                            {/* Clean spacing between components */}
+                            <div className="flex flex-col gap-8">
+                                <WorkspaceLayout />
+                                <WizardUploader />
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </main>
     );
 }

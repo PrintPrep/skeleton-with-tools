@@ -1,8 +1,8 @@
-// app/tools/pdf-toolkit/page.tsx
-// MODIFIED: Now shows landing page instead of direct app
+// app/tools/pdf-toolkit/editor/page.tsx
+// NEW FILE: Main application workspace route
 
-import LandingPage from '@/components/tools/pdf-toolkit/LandingPage';
+import PDFToolkit from '@/components/tools/pdf-toolkit/PDFToolkit';
 
-export default function Home() {
-    return <LandingPage />;
+export default function WorkspacePage() {
+    return <PDFToolkit />;
 }
