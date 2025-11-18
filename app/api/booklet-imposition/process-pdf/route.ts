@@ -1,73 +1,69 @@
 // app/api/booklet-imposition/process-pdf/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
+import { PDFDocument } from 'pdf-lib';
 import { calculateImposition } from '@/lib/booklet-imposition/pdf/imposer';
-import { processPdf, validatePdfForProcessing } from '@/lib/booklet-imposition/pdf/processor';
+import { processPdf } from '@/lib/booklet-imposition/pdf/processor';
 import { BookletSettings } from '@/types/booklet-imposition/settings.types';
 
 /**
  * API Route: POST /api/process-pdf
  *
  * Processes a PDF and creates an imposed booklet
+ * Now actually used for better reliability with large files
  *
- * Request body: JSON with { pdfData: base64 string, settings: BookletSettings }
- * Response: Processed PDF as binary
+ * Request: FormData with 'pdf' file and 'settings' JSON string
+ * Response: Processed PDF as binary + metadata headers
  */
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
-        const { pdfData, settings } = body;
+        console.log('Process PDF API called');
 
-        if (!pdfData || !settings) {
+        // Parse FormData
+        const formData = await request.formData();
+        const pdfFile = formData.get('pdf') as File;
+        const settingsStr = formData.get('settings') as string;
+
+        if (!pdfFile || !settingsStr) {
             return NextResponse.json(
-                { error: 'Missing PDF data or settings' },
+                { error: 'Missing PDF file or settings' },
                 { status: 400 }
             );
         }
 
-        // Convert base64 to ArrayBuffer
-        const binaryString = atob(pdfData);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
-        const pdfBuffer = bytes.buffer;
+        console.log('Received file:', pdfFile.name, 'Size:', pdfFile.size);
 
-        // Validate PDF
-        const validation = await validatePdfForProcessing(pdfBuffer);
-        if (!validation.valid) {
-            return NextResponse.json(
-                { error: validation.error || 'Invalid PDF' },
-                { status: 400 }
-            );
-        }
+        // Parse settings
+        const settings = JSON.parse(settingsStr) as BookletSettings;
+        console.log('Settings:', settings);
+
+        // Convert file to ArrayBuffer
+        const arrayBuffer = await pdfFile.arrayBuffer();
+        console.log('File converted to ArrayBuffer');
 
         // Get page count for imposition calculation
-        const { PDFDocument } = await import('pdf-lib');
-        const pdf = await PDFDocument.load(pdfBuffer);
+        const pdf = await PDFDocument.load(arrayBuffer);
         const totalPages = pdf.getPageCount();
+        console.log('Total pages:', totalPages);
 
         // Calculate imposition
-        const impositionResult = calculateImposition(
-            totalPages,
-            settings.duplexMode
-        );
+        const impositionResult = calculateImposition(totalPages, settings.duplexMode);
+        console.log('Imposition calculated:', impositionResult);
 
         // Process the PDF
-        const processedPdf = await processPdf(
-            pdfBuffer,
-            impositionResult,
-            settings as BookletSettings
-        );
+        console.log('Starting PDF processing...');
+        const processedPdf = await processPdf(arrayBuffer, impositionResult, settings);
+        console.log('PDF processed successfully. Size:', processedPdf.length);
 
-        // Return the processed PDF with imposition metadata
+        // Return the processed PDF with metadata
         return new NextResponse(processedPdf, {
             status: 200,
             headers: {
                 'Content-Type': 'application/pdf',
-                'Content-Disposition': 'attachment; filename="booklet.pdf"',
+                'Content-Disposition': `attachment; filename="${pdfFile.name.replace('.pdf', '')}_booklet.pdf"`,
                 'X-Total-Sheets': impositionResult.totalSheets.toString(),
                 'X-Blanks-Added': impositionResult.blanksAdded.toString(),
+                'X-Total-Spreads': impositionResult.spreads.length.toString(),
             },
         });
 
@@ -77,6 +73,7 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
             {
                 error: error instanceof Error ? error.message : 'Failed to process PDF',
+                details: error instanceof Error ? error.stack : undefined,
             },
             { status: 500 }
         );
@@ -90,12 +87,12 @@ export async function GET() {
     return NextResponse.json({
         endpoint: '/api/process-pdf',
         method: 'POST',
-        description: 'Processes a PDF and creates an imposed booklet',
-        accepts: 'application/json',
-        body: {
-            pdfData: 'base64 encoded PDF',
-            settings: 'BookletSettings object',
+        description: 'Processes a PDF and creates an imposed booklet (server-side)',
+        accepts: 'multipart/form-data',
+        fields: {
+            pdf: 'PDF file',
+            settings: 'JSON string of BookletSettings',
         },
-        returns: 'application/pdf',
+        returns: 'application/pdf with metadata headers',
     });
 }

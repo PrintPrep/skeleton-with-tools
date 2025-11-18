@@ -55,8 +55,15 @@ export async function processPdf(
                     settings
                 );
             } else {
-                // Draw blank page indicator (optional - could be removed)
-                drawBlankPagePlaceholder(outputPage, margins.left, margins.bottom, leftPageWidth, pageHeight);
+                // Draw blank page indicator
+                drawBlankPagePlaceholder(
+                    outputPage,
+                    margins.left,
+                    margins.bottom,
+                    leftPageWidth,
+                    pageHeight,
+                    settings.blankPageStyle
+                );
             }
 
             // Draw right page
@@ -72,13 +79,14 @@ export async function processPdf(
                     settings
                 );
             } else {
-                // Draw blank page indicator (optional - could be removed)
+                // Draw blank page indicator
                 drawBlankPagePlaceholder(
                     outputPage,
                     paperConfig.output.width + margins.gutter / 2,
                     margins.bottom,
                     rightPageWidth,
-                    pageHeight
+                    pageHeight,
+                    settings.blankPageStyle
                 );
             }
         }
@@ -146,38 +154,60 @@ async function embedPageOnSheet(
 
 /**
  * Draws a placeholder for blank pages
+ * Options: 'x', 'subtle', 'none'
  */
 function drawBlankPagePlaceholder(
     page: any,
     x: number,
     y: number,
     width: number,
-    height: number
+    height: number,
+    style: 'x' | 'subtle' | 'none' = 'subtle' // Changed default to 'subtle'
 ): void {
-    // Draw a light gray rectangle
-    page.drawRectangle({
-        x,
-        y,
-        width,
-        height,
-        borderColor: rgb(0.8, 0.8, 0.8),
-        borderWidth: 1,
-    });
+    if (style === 'none') {
+        // Completely blank - do nothing
+        return;
+    }
 
-    // Draw diagonal lines
-    page.drawLine({
-        start: { x, y },
-        end: { x: x + width, y: y + height },
-        color: rgb(0.9, 0.9, 0.9),
-        thickness: 0.5,
-    });
+    if (style === 'subtle') {
+        // Just a light border, no X
+        page.drawRectangle({
+            x,
+            y,
+            width,
+            height,
+            borderColor: rgb(0.95, 0.95, 0.95), // Very light gray
+            borderWidth: 0.5,
+        });
+        return;
+    }
 
-    page.drawLine({
-        start: { x: x + width, y },
-        end: { x, y: y + height },
-        color: rgb(0.9, 0.9, 0.9),
-        thickness: 0.5,
-    });
+    if (style === 'x') {
+        // Original style with big X
+        page.drawRectangle({
+            x,
+            y,
+            width,
+            height,
+            borderColor: rgb(0.8, 0.8, 0.8),
+            borderWidth: 1,
+        });
+
+        // Draw diagonal lines
+        page.drawLine({
+            start: { x, y },
+            end: { x: x + width, y: y + height },
+            color: rgb(0.9, 0.9, 0.9),
+            thickness: 0.5,
+        });
+
+        page.drawLine({
+            start: { x: x + width, y },
+            end: { x, y: y + height },
+            color: rgb(0.9, 0.9, 0.9),
+            thickness: 0.5,
+        });
+    }
 }
 
 /**

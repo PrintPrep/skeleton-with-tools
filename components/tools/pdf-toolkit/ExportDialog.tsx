@@ -1,5 +1,5 @@
 // components/tools/pdf-toolkit/ExportDialog.tsx
-// MODIFIED: Redesigned preview section to show vertical scrollable thumbnails
+// ADDED: Select All functionality with order preservation
 
 import React from 'react';
 import { Download } from 'lucide-react';
@@ -24,6 +24,31 @@ export default function ExportDialog({
                                          onExport,
                                          onClose,
                                      }: ExportDialogProps) {
+    // Check if all sections are selected
+    const allSelected = sections.length > 0 && selectedSections.length === sections.length;
+
+    // Check if some (but not all) sections are selected
+    const someSelected = selectedSections.length > 0 && selectedSections.length < sections.length;
+
+    // Handle Select All / Deselect All
+    const handleSelectAll = () => {
+        if (allSelected) {
+            // Deselect all - pass empty array to parent
+            sections.forEach(section => {
+                if (selectedSections.includes(section.id)) {
+                    onToggleSection(section.id);
+                }
+            });
+        } else {
+            // Select all sections that aren't already selected (preserves order)
+            sections.forEach(section => {
+                if (!selectedSections.includes(section.id)) {
+                    onToggleSection(section.id);
+                }
+            });
+        }
+    };
+
     // Get preview pages in user's selection order
     const getPreviewPages = (): Page[] => {
         const previewPages: Page[] = [];
@@ -50,7 +75,30 @@ export default function ExportDialog({
                 <div className="flex-1 overflow-hidden flex">
                     {/* Section Selection */}
                     <div className="w-2/5 border-r border-gray-200 overflow-y-auto p-6">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Select Sections</h3>
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-sm font-semibold text-gray-700">Select Sections</h3>
+
+                            {/* Select All Button */}
+                            <button
+                                onClick={handleSelectAll}
+                                disabled={sections.length === 0}
+                                className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold bg-[#00BFA6] hover:bg-[#00A890] text-white rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
+                            >
+                                <input
+                                    type="checkbox"
+                                    checked={allSelected}
+                                    onChange={() => {}} // Handled by button click
+                                    ref={(el) => {
+                                        if (el) {
+                                            el.indeterminate = someSelected;
+                                        }
+                                    }}
+                                    className="w-3.5 h-3.5 cursor-pointer accent-white pointer-events-none"
+                                />
+                                {allSelected ? 'Deselect All' : 'Select All'}
+                            </button>
+                        </div>
+
                         <div className="space-y-2">
                             {sections.map((section) => {
                                 const isSelected = selectedSections.includes(section.id);
@@ -70,8 +118,8 @@ export default function ExportDialog({
                                             />
                                             {isSelected && (
                                                 <span className="absolute -top-1 -right-1 bg-[#A259FF] text-white text-xs w-4 h-4 flex items-center justify-center rounded-full font-bold shadow-sm">
-                          {selectionOrder}
-                        </span>
+                                                    {selectionOrder}
+                                                </span>
                                             )}
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -88,7 +136,7 @@ export default function ExportDialog({
                         </div>
                     </div>
 
-                    {/* Preview - REDESIGNED: Vertical Scrollable Thumbnails */}
+                    {/* Preview - Vertical Scrollable Thumbnails */}
                     <div className="w-3/5 overflow-y-auto p-6 bg-gray-50">
                         <h3 className="text-sm font-semibold text-gray-700 mb-4">
                             Preview ({getPreviewPages().length} pages)

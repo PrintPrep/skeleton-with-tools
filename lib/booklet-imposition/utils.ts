@@ -76,10 +76,17 @@ export function calculateScaleFactor(
 /**
  * Create a blob URL from Uint8Array
  */
-export function createBlobUrl(data: Uint8Array, type: string = 'application/pdf'): string {
-    const blob = new Blob([data], { type });
+export function createBlobUrl(data: Uint8Array, type: string = "application/pdf"): string {
+    // Force conversion to a normal ArrayBuffer
+    const safeBuffer = new ArrayBuffer(data.byteLength);
+    const safeArray = new Uint8Array(safeBuffer);
+    safeArray.set(data); // copy bytes
+
+    const blob = new Blob([safeArray], { type });
     return URL.createObjectURL(blob);
 }
+
+
 
 /**
  * Revoke blob URL

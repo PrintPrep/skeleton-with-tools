@@ -26,6 +26,7 @@ export async function generatePreviews(
         const pdf = await loadingTask.promise;
 
         console.log(`PDF loaded successfully. Pages: ${pdf.numPages}`);
+        console.log("yes hutto yes");
 
         const previews: SheetPreview[] = [];
 

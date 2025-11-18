@@ -13,9 +13,10 @@ import {
     PAPER_SIZE_DESCRIPTIONS,
     DUPLEX_MODE_DESCRIPTIONS,
     MARGIN_PRESET_DESCRIPTIONS,
+    BLANK_PAGE_STYLE_DESCRIPTIONS,
     MARGIN_PRESETS,
 } from '@/lib/booklet-imposition/constants';
-import { PaperSize, DuplexMode, MarginPreset } from '@/types/booklet-imposition/settings.types';
+import { PaperSize, DuplexMode, MarginPreset, BlankPageStyle } from '@/types/booklet-imposition/settings.types';
 
 export function StepSettings() {
     const { settings, updateSettings, nextStep, previousStep } = useBookletStore();
@@ -38,6 +39,10 @@ export function StepSettings() {
 
     const handleScaleToFitChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         updateSettings({ scaleToFit: e.target.checked });
+    };
+
+    const handleBlankPageStyleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        updateSettings({ blankPageStyle: e.target.value as BlankPageStyle });
     };
 
     return (
@@ -119,6 +124,26 @@ export function StepSettings() {
                             </p>
                         </div>
                     </label>
+
+                    <div className="pt-4 border-t border-gray-200">
+                        <label className="block mb-2">
+                            <span className="font-medium text-gray-900">Blank Page Indicator</span>
+                            <p className="text-sm text-gray-600 mt-1 mb-3">
+                                How to display automatically added blank pages
+                            </p>
+                        </label>
+                        <Select
+                            value={settings.blankPageStyle}
+                            onChange={handleBlankPageStyleChange}
+                            helperText={BLANK_PAGE_STYLE_DESCRIPTIONS[settings.blankPageStyle].description}
+                        >
+                            {Object.entries(BLANK_PAGE_STYLE_DESCRIPTIONS).map(([value, { title }]) => (
+                                <option key={value} value={value}>
+                                    {title}
+                                </option>
+                            ))}
+                        </Select>
+                    </div>
                 </div>
             </Card>
 

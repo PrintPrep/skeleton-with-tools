@@ -3,6 +3,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { analyzePdf, validatePdf } from '@/lib/booklet-imposition/pdf/analyzer';
 
+export const config = {
+    api: {
+        bodyParser: {
+            sizeLimit: "100mb",
+        },
+    },
+};
+
 /**
  * API Route: POST /api/analyze
  *

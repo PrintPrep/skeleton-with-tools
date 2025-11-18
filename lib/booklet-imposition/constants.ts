@@ -68,6 +68,7 @@ export const DEFAULT_SETTINGS: BookletSettings = {
     margins: MARGIN_PRESETS.standard,
     addBlankPages: true,
     scaleToFit: true,
+    blankPageStyle: 'subtle',
 };
 
 /**
@@ -104,6 +105,24 @@ export const MARGIN_PRESET_DESCRIPTIONS: Record<MarginPreset, string> = {
     minimal: 'Minimal margins (0.25" + 0.5" gutter)',
     standard: 'Standard margins (0.5" + 0.75" gutter)',
     wide: 'Wide margins (0.75" + 1" gutter)',
+};
+
+/**
+ * Blank page style descriptions
+ */
+export const BLANK_PAGE_STYLE_DESCRIPTIONS = {
+    x: {
+        title: 'X Mark',
+        description: 'Show large X on blank pages (for debugging)',
+    },
+    subtle: {
+        title: 'Subtle Border',
+        description: 'Light border only (recommended)',
+    },
+    none: {
+        title: 'Completely Blank',
+        description: 'No indicator (cleanest look)',
+    },
 };
 
 /**

@@ -47,6 +47,45 @@ export function getPdfJsVersion(): string {
     return PDFJS_VERSION;
 }
 
+/**
+ * Check if PDF.js is properly configured
+ */
+export function checkPdfJsConfig(): {
+    isConfigured: boolean;
+    version: string;
+    workerSrc: string;
+    issues: string[];
+} {
+    const issues: string[] = [];
+
+    if (typeof window === 'undefined') {
+        issues.push('Running on server side');
+        return {
+            isConfigured: false,
+            version: PDFJS_VERSION,
+            workerSrc: '',
+            issues,
+        };
+    }
+
+    const workerSrc = pdfjsLib.GlobalWorkerOptions.workerSrc;
+
+    if (!workerSrc) {
+        issues.push('Worker source not configured');
+    }
+
+    if (!workerSrc.includes(PDFJS_VERSION)) {
+        issues.push(`Worker version mismatch (expected ${PDFJS_VERSION})`);
+    }
+
+    return {
+        isConfigured: isConfigured && issues.length === 0,
+        version: PDFJS_VERSION,
+        workerSrc: workerSrc || '',
+        issues,
+    };
+}
+
 // Auto-initialize when module is imported
 if (typeof window !== 'undefined') {
     initializePdfJs();

@@ -11,6 +11,7 @@ import { ArrowRight, ArrowLeft, Eye } from 'lucide-react';
 import { calculateImposition } from '@/lib/booklet-imposition/pdf/imposer';
 import { processPdf } from '@/lib/booklet-imposition/pdf/processor';
 import { generatePreviews } from '@/lib/booklet-imposition/pdf/renderer';
+import { PreviewDiagnostics } from '../PreviewDiagnostics';
 
 export function StepPreview() {
     const {
@@ -31,6 +32,7 @@ export function StepPreview() {
 
     const [isProcessing, setIsProcessing] = useState(false);
     const [isGeneratingPreviews, setIsGeneratingPreviews] = useState(false);
+    const [showDiagnostics, setShowDiagnostics] = useState(false);
 
     useEffect(() => {
         if (!processedPdf && uploadedFile && analysis) {
@@ -187,8 +189,36 @@ export function StepPreview() {
             ) : (
                 <Alert type="info" title="Previews Not Available">
                     Preview generation was skipped. You can still download your processed booklet.
+                    <div className="mt-3">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowDiagnostics(!showDiagnostics)}
+                        >
+                            {showDiagnostics ? 'Hide' : 'Show'} Diagnostics
+                        </Button>
+                    </div>
                 </Alert>
             )}
+
+            {showDiagnostics && <PreviewDiagnostics />}
+
+            {errorMessage && (
+                <Alert type="warning" title="Preview Issue">
+                    {errorMessage}
+                    <div className="mt-3">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowDiagnostics(!showDiagnostics)}
+                        >
+                            {showDiagnostics ? 'Hide' : 'Show'} Diagnostics
+                        </Button>
+                    </div>
+                </Alert>
+            )}
+
+            {showDiagnostics && <PreviewDiagnostics />}
 
             <Alert type="success" title="Processing Complete!">
                 Your booklet has been successfully created. Click "Next" to download the file.

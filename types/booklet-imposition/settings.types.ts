@@ -36,6 +36,11 @@ export interface Margins {
 }
 
 /**
+ * Blank page indicator style
+ */
+export type BlankPageStyle = 'x' | 'subtle' | 'none';
+
+/**
  * Complete user settings for booklet creation
  */
 export interface BookletSettings {
@@ -45,4 +50,5 @@ export interface BookletSettings {
     margins: Margins;
     addBlankPages: boolean; // Manually add blank pages
     scaleToFit: boolean; // Scale pages to fit sheet
+    blankPageStyle: BlankPageStyle; // How to show blank pages
 }

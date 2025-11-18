@@ -1,46 +1,66 @@
 // app/api/booklet-imposition/preview/route.ts
 
 import { NextRequest, NextResponse } from 'next/server';
+import { PDFDocument } from 'pdf-lib';
+// Note: Server-side PDF rendering requires canvas package
+// For now, we'll return page info and let client handle rendering
 
 /**
  * API Route: POST /api/preview
  *
- * Generates preview thumbnails for an imposed PDF
+ * Generates preview metadata for an imposed PDF
+ * Returns page information that client can use to render previews
  *
- * Note: This is a server-side endpoint, but preview generation
- * is typically done client-side using PDF.js for better performance.
- * This endpoint is kept for compatibility but may not be used in the final app.
- *
- * Request body: JSON with { pdfData: base64 string }
- * Response: Array of preview image data URLs
+ * Request: FormData with 'pdf' file
+ * Response: JSON with page information
  */
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
-        const { pdfData } = body;
+        console.log('Preview API called');
 
-        if (!pdfData) {
+        // Parse FormData
+        const formData = await request.formData();
+        const pdfFile = formData.get('pdf') as File;
+
+        if (!pdfFile) {
             return NextResponse.json(
-                { error: 'No PDF data provided' },
+                { error: 'No PDF file provided' },
                 { status: 400 }
             );
         }
 
-        // Convert base64 to Uint8Array
-        const binaryString = atob(pdfData);
-        const bytes = new Uint8Array(binaryString.length);
-        for (let i = 0; i < binaryString.length; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
+        console.log('Received file for preview:', pdfFile.name);
+
+        // Convert file to ArrayBuffer
+        const arrayBuffer = await pdfFile.arrayBuffer();
+
+        // Load PDF to get page count and dimensions
+        const pdf = await PDFDocument.load(arrayBuffer);
+        const pageCount = pdf.getPageCount();
+
+        console.log('PDF loaded. Pages:', pageCount);
+
+        // Get dimensions of each page
+        const pages = [];
+        for (let i = 0; i < pageCount; i++) {
+            const page = pdf.getPage(i);
+            const { width, height } = page.getSize();
+            pages.push({
+                pageNumber: i + 1,
+                width,
+                height,
+            });
         }
 
-        // Note: Server-side rendering of PDFs to images is complex
-        // and requires additional dependencies like canvas or sharp.
-        // For this application, we'll handle preview generation client-side.
+        // Return PDF as base64 for client-side rendering
+        const base64Pdf = Buffer.from(arrayBuffer).toString('base64');
 
         return NextResponse.json({
             success: true,
-            message: 'Preview generation is handled client-side',
-            note: 'Use the renderer.ts utility on the client for better performance',
+            pageCount,
+            pages,
+            pdfData: base64Pdf, // Client will use this with PDF.js
+            message: 'PDF ready for client-side preview rendering',
         });
 
     } catch (error) {
@@ -48,7 +68,8 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json(
             {
-                error: error instanceof Error ? error.message : 'Failed to generate previews',
+                error: error instanceof Error ? error.message : 'Failed to process PDF for preview',
+                details: error instanceof Error ? error.stack : undefined,
             },
             { status: 500 }
         );
@@ -62,7 +83,11 @@ export async function GET() {
     return NextResponse.json({
         endpoint: '/api/preview',
         method: 'POST',
-        description: 'Generates preview thumbnails (handled client-side)',
-        note: 'Preview generation is typically done in the browser using PDF.js',
+        description: 'Returns PDF data for client-side preview rendering',
+        accepts: 'multipart/form-data',
+        fields: {
+            pdf: 'PDF file to preview',
+        },
+        returns: 'JSON with page info and base64 PDF data',
     });
 }
