@@ -1,5 +1,3 @@
-// app/dashboard/page.tsx
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -8,22 +6,40 @@ import { DashboardHeader } from '@/components/dashboard/DashboardHeader';
 import { ToolCards } from '@/components/dashboard/ToolCards';
 import { RecentProjects } from '@/components/dashboard/RecentProjects';
 import { AssetsPreview } from '@/components/dashboard/AssetsPreview';
+import { useUser, useAuth } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
     const [isPro, setIsPro] = useState(false);
     const [userName, setUserName] = useState('User');
     const [isLoading, setIsLoading] = useState(true);
+    const { user, isLoaded } = useUser();
+    const { userId } = useAuth();
+    const router = useRouter();
 
     useEffect(() => {
-        // Simulate fetching user data
-        setTimeout(() => {
-            setUserName('Sithum');
-            setIsPro(false); // Change to true to see Pro experience
-            setIsLoading(false);
-        }, 500);
-    }, []);
+        // Redirect if not authenticated
+        if (isLoaded && !user) {
+            router.push('/sign-in');
+            return;
+        }
 
-    if (isLoading) {
+        // Set user data when user is loaded
+        if (isLoaded && user) {
+            setUserName(user.firstName || user.username || 'User');
+            
+            // Simulate fetching user subscription data
+            setTimeout(() => {
+                // You can replace this with actual subscription check
+                // For now, we'll set isPro based on some condition
+                setIsPro(user?.publicMetadata?.isPro === true);
+                setIsLoading(false);
+            }, 500);
+        }
+    }, [user, isLoaded, router]);
+
+    // Show loading state
+    if (!isLoaded || isLoading) {
         return (
             <div className="w-full h-screen bg-gradient-to-br from-cyan-50 to-white flex items-center justify-center">
                 <div className="text-center">
@@ -32,6 +48,11 @@ export default function DashboardPage() {
                 </div>
             </div>
         );
+    }
+
+    // If no user but loaded, show nothing (will redirect)
+    if (!user) {
+        return null;
     }
 
     return (
