@@ -7,7 +7,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             {/* ===== DASHBOARD NAVBAR ===== */}
 
             {/* ===== MAIN CONTENT WRAPPER ===== */}
-            <main className="px-6 md:px-12 lg:px-24 py-12 relative z-10">{children}</main>
+            <main>{children}</main>
         </div>
     );
 }
