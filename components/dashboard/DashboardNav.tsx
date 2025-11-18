@@ -85,10 +85,10 @@ export const DashboardNav = ({ isPro = false }) => {
                                     Assets
                                     <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">Pro</span>
                                 </span>
-                                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-800 text-white text-sm rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap">
-                                    Upgrade to Pro to access assets
-                                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"></div>
-                                </div>
+                                <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1 bg-gray-800 text-white text-sm rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap">
+    Upgrade to Pro to access assets
+    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full border-4 border-transparent border-b-gray-800"></div>
+</div>
                             </div>
                         )}
 

@@ -9,47 +9,49 @@ datasource db {
 
 /// ---------------------- User ----------------------
 model User {
-  id         String      @id @default(uuid())
-  email      String      @unique
-  password   String
-  name       String?
-  role       String?
-  createdAt  DateTime    @default(now())
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  role      String?
+  createdAt DateTime @default(now())
+  isPro     Boolean  @default(false) // ← Add this field
 
-  projects   Project[]
-  uploads    PdfFile[]         @relation("UploadedBy")
-  pdfOps     PdfOperations[]   @relation("RequestedBy")
-  payments   Payment[]
-  auditLogs  AuditLog[]
+  projects      Project[]
+  uploads       PdfFile[]       @relation("UploadedBy")
+  pdfOps        PdfOperations[] @relation("RequestedBy")
+  payments      Payment[]
+  subscriptions Subscription[] // ← Add this relation
+  auditLogs     AuditLog[]
 }
 
 /// ---------------------- Project ----------------------
 model Project {
-  id        String      @id @default(uuid())
+  id        String   @id @default(uuid())
   userid    String?
   name      String
-  createdAt DateTime    @default(now())
+  createdAt DateTime @default(now())
 
-  user      User?       @relation(fields: [userid], references: [id], onDelete: Cascade)
-  files     ProjectFile[]
+  user       User?           @relation(fields: [userid], references: [id], onDelete: Cascade)
+  files      ProjectFile[]
   operations PdfOperations[]
 }
 
 /// ---------------------- PDF Files ----------------------
 model PdfFile {
-  id             String       @id @default(uuid())
-  original_name  String
-  storage_url    String
+  id              String   @id @default(uuid())
+  original_name   String
+  storage_url     String
   file_size_in_kb Int?
-  page_count     Int?
-  uploaded_by_id String?
-  created_at     DateTime     @default(now())
-  sha256         String?
-  page_type      String?
+  page_count      Int?
+  uploaded_by_id  String?
+  created_at      DateTime @default(now())
+  sha256          String?
+  page_type       String?
 
-  uploadedBy     User?        @relation("UploadedBy", fields: [uploaded_by_id], references: [id], onDelete: SetNull)
-  operations     PdfFilePdfOperations[]
-  projectFiles   ProjectFile[]
+  uploadedBy   User?                  @relation("UploadedBy", fields: [uploaded_by_id], references: [id], onDelete: SetNull)
+  operations   PdfFilePdfOperations[]
+  projectFiles ProjectFile[]
 }
 
 /// ---------------------- PDF Operations ----------------------
@@ -60,37 +62,37 @@ model PdfOperations {
   requestedby_id String?
   project_id     String?
   status         String?
-  created_at     DateTime   @default(now())
+  created_at     DateTime  @default(now())
   completed_at   DateTime?
 
-  requestedBy    User?        @relation("RequestedBy", fields: [requestedby_id], references: [id], onDelete: SetNull)
-  project        Project?     @relation(fields: [project_id], references: [id], onDelete: SetNull)
-  pdfFiles       PdfFilePdfOperations[]
-  jobs           Job[]
+  requestedBy User?                  @relation("RequestedBy", fields: [requestedby_id], references: [id], onDelete: SetNull)
+  project     Project?               @relation(fields: [project_id], references: [id], onDelete: SetNull)
+  pdfFiles    PdfFilePdfOperations[]
+  jobs        Job[]
 }
 
 /// ---------------------- Project File (Join Table) ----------------------
 model ProjectFile {
   project_id  String
   pdf_file_id String
-  is_final    Boolean     @default(false)
+  is_final    Boolean @default(false)
 
-  project     Project     @relation(fields: [project_id], references: [id], onDelete: Cascade)
-  pdfFile     PdfFile     @relation(fields: [pdf_file_id], references: [id], onDelete: Cascade)
+  project Project @relation(fields: [project_id], references: [id], onDelete: Cascade)
+  pdfFile PdfFile @relation(fields: [pdf_file_id], references: [id], onDelete: Cascade)
 
   @@id([project_id, pdf_file_id])
 }
 
 /// ---------------------- PDF File - PDF Operations ----------------------
 model PdfFilePdfOperations {
-  id                String @id @default(uuid())
+  id                String  @id @default(uuid())
   pdf_operations_id String
   pdf_file_id       String
   role              String?
   order_index       Int?
 
-  pdfOperations     PdfOperations @relation(fields: [pdf_operations_id], references: [id], onDelete: Cascade)
-  pdfFile           PdfFile       @relation(fields: [pdf_file_id], references: [id], onDelete: Cascade)
+  pdfOperations PdfOperations @relation(fields: [pdf_operations_id], references: [id], onDelete: Cascade)
+  pdfFile       PdfFile       @relation(fields: [pdf_file_id], references: [id], onDelete: Cascade)
 }
 
 /// ---------------------- Payment ----------------------
@@ -102,20 +104,22 @@ model Payment {
   amountCents      Int?
   status           String?
   createdAt        DateTime @default(now())
+  subscriptionId   String? // Lemon Squeezy subscription ID
 
-  user             User?    @relation(fields: [userid], references: [id], onDelete: SetNull)
+  user         User?         @relation(fields: [userid], references: [id], onDelete: SetNull)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id])
 }
 
 /// ---------------------- Audit Log ----------------------
 model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String?
-  action    String?
-  resource  String?
-  details   Json?
+  id         String   @id @default(uuid())
+  userId     String?
+  action     String?
+  resource   String?
+  details    Json?
   created_at DateTime @default(now())
 
-  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
 }
 
 /// ---------------------- Job ----------------------
@@ -130,5 +134,22 @@ model Job {
   error        String?
   created_at   DateTime  @default(now())
 
-  operation    PdfOperations @relation(fields: [operation_id], references: [id], onDelete: Cascade)
+  operation PdfOperations @relation(fields: [operation_id], references: [id], onDelete: Cascade)
+}
+
+// Add Subscription model
+// Update the Subscription model in prisma/schema.prisma
+model Subscription {
+  id                 String   @id @default(uuid())
+  userid             String?
+  provider           String?  // "lemon_squeezy"
+  subscriptionId     String?  @unique // ← Add @unique here
+  variantId          String?  // Lemon Squeezy variant ID
+  status             String?  // "active", "cancelled", "expired"
+  currentPeriodEnd   DateTime?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  user               User?    @relation(fields: [userid], references: [id], onDelete: SetNull)
+  payments           Payment[]
 }
