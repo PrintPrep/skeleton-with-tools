@@ -128,7 +128,7 @@ export const BLANK_PAGE_STYLE_DESCRIPTIONS = {
 /**
  * Maximum file size for uploads (50MB)
  */
-export const MAX_FILE_SIZE = 50 * 1024 * 1024;
+export const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
 /**
  * Accepted file types

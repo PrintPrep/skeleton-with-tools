@@ -76,7 +76,7 @@ export default function Home() {
                             <li className="flex items-start gap-3">
                                 <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-teal-100 text-teal-700 font-bold text-xs flex-shrink-0 mt-0.5">1</span>
                                 <div>
-                                    <strong className="text-teal-700">Upload:</strong> Select your PDF file (maximum 50MB)
+                                    <strong className="text-teal-700">Upload:</strong> Select your PDF file (maximum 10MB)
                                 </div>
                             </li>
                             <li className="flex items-start gap-3">
