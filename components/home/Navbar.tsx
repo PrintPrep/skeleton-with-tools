@@ -8,17 +8,42 @@ import {
   SignedIn, 
   SignedOut, 
   UserButton, 
-  SignInButton, 
-  SignUpButton 
+  useAuth,
+  useClerk
 } from '@clerk/nextjs';
 
 export const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const router = useRouter();
+    const { isSignedIn } = useAuth();
+    const { openSignIn, openSignUp } = useClerk();
+
+    const handleSignIn = () => {
+        openSignIn({
+            afterSignInUrl: '/dashboard',
+            afterSignUpUrl: '/dashboard'
+        });
+    };
+
+    const handleSignUp = () => {
+        openSignUp({
+            redirectUrl: '/dashboard',
+            afterSignInUrl: '/dashboard',
+            afterSignUpUrl: '/dashboard'
+        });
+    };
 
     const handleDashboard = () => {
         router.push('/dashboard');
+    };
+
+    const handleGetStarted = () => {
+        if (isSignedIn) {
+            router.push('/dashboard');
+        } else {
+            handleSignUp();
+        }
     };
 
     useEffect(() => {
@@ -52,16 +77,18 @@ export const Navbar = () => {
 
                     <div className="hidden md:flex items-center gap-4">
                         <SignedOut>
-                            <SignInButton mode="modal">
-                                <button className="text-gray-700 hover:text-teal-600 transition font-medium">
-                                    Login
-                                </button>
-                            </SignInButton>
-                            <SignUpButton mode="modal">
-                                <button className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-6 py-2 rounded-full font-medium hover:shadow-lg hover:scale-105 transition-all">
-                                    Get Started Free
-                                </button>
-                            </SignUpButton>
+                            <button 
+                                onClick={handleSignIn}
+                                className="text-gray-700 hover:text-teal-600 transition font-medium"
+                            >
+                                Login
+                            </button>
+                            <button 
+                                onClick={handleSignUp}
+                                className="bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-6 py-2 rounded-full font-medium hover:shadow-lg hover:scale-105 transition-all"
+                            >
+                                Get Started Free
+                            </button>
                         </SignedOut>
                         <SignedIn>
                             <button
@@ -75,42 +102,82 @@ export const Navbar = () => {
                     </div>
 
                     {/* Mobile Menu Button */}
-                    <button className="md:hidden" onClick={() => setIsOpen(!isOpen)}>
+                    <button 
+                        className="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
                         {isOpen ? <X size={24} /> : <Menu size={24} />}
                     </button>
                 </div>
 
                 {/* Mobile Menu */}
                 {isOpen && (
-                    <div className="md:hidden pb-4 space-y-2 bg-white/95 backdrop-blur-md rounded-lg mt-2">
-                        <a href="#features" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 rounded">Features</a>
-                        <a href="#pricing" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 rounded">Pricing</a>
-                        <a href="#how-it-works" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 rounded">How It Works</a>
-                        <a href="#faq" className="block px-4 py-2 text-gray-700 hover:bg-teal-50 rounded">FAQ</a>
+                    <div className="md:hidden pb-4 space-y-2 bg-white/95 backdrop-blur-md rounded-lg mt-2 border border-gray-200 shadow-lg">
+                        <a 
+                            href="#features" 
+                            className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            Features
+                        </a>
+                        <a 
+                            href="#pricing" 
+                            className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            Pricing
+                        </a>
+                        <a 
+                            href="#how-it-works" 
+                            className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            How It Works
+                        </a>
+                        <a 
+                            href="#faq" 
+                            className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
+                            onClick={() => setIsOpen(false)}
+                        >
+                            FAQ
+                        </a>
                         
-                        <SignedOut>
-                            <SignInButton mode="modal">
-                                <button className="w-full text-left px-4 py-2 text-gray-700 hover:bg-teal-50 rounded">
+                        <div className="border-t border-gray-200 pt-2">
+                            <SignedOut>
+                                <button 
+                                    onClick={() => {
+                                        handleSignIn();
+                                        setIsOpen(false);
+                                    }}
+                                    className="w-full text-left px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
+                                >
                                     Login
                                 </button>
-                            </SignInButton>
-                            <SignUpButton mode="modal">
-                                <button className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-2 rounded font-medium">
+                                <button 
+                                    onClick={() => {
+                                        handleSignUp();
+                                        setIsOpen(false);
+                                    }}
+                                    className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-3 rounded font-medium hover:shadow-lg transition-all mx-4 mt-2 text-center"
+                                >
                                     Get Started Free
                                 </button>
-                            </SignUpButton>
-                        </SignedOut>
-                        <SignedIn>
-                            <button
-                                onClick={handleDashboard}
-                                className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-2 rounded font-medium"
-                            >
-                                Dashboard
-                            </button>
-                        </SignedIn>
+                            </SignedOut>
+                            <SignedIn>
+                                <button
+                                    onClick={() => {
+                                        handleDashboard();
+                                        setIsOpen(false);
+                                    }}
+                                    className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 text-white px-4 py-3 rounded font-medium hover:shadow-lg transition-all mx-4 text-center"
+                                >
+                                    Dashboard
+                                </button>
+                            </SignedIn>
+                        </div>
                     </div>
                 )}
             </div>
         </nav>
     );
-};
+};  

@@ -1,16 +1,25 @@
 // components/home/Hero.tsx
-
 'use client';
 
 import React from 'react';
 import { ChevronDown, ArrowRight } from 'lucide-react';
-import {useRouter} from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useAuth, useClerk } from '@clerk/nextjs';
 
 export const Hero = () => {
     const router = useRouter();
+    const { isSignedIn } = useAuth();
+    const { openSignUp } = useClerk();
 
     const handleGetStarted = () => {
-        router.push('/dashboard');
+        if (isSignedIn) {
+            router.push('/dashboard');
+        } else {
+            openSignUp({
+                redirectUrl: '/dashboard',
+                afterSignUpUrl: '/dashboard'
+            });
+        }
     };
 
     return (
@@ -43,7 +52,7 @@ export const Hero = () => {
                 </div>
 
                 <p className="text-gray-500 text-sm mb-8">
-                    No accounts. No clutter. Just creativity unleashed.
+                    {isSignedIn ? 'Welcome back! Ready to create?' : 'No credit card required. Start free, upgrade anytime.'}
                 </p>
 
                 {/* Scroll indicator */}
