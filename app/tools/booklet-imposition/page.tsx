@@ -1,73 +1,121 @@
-// app/tools/booklet-imposition/page.tsx
+// app/tools/booklet-imposition/editor/page.tsx
 
-import Link from "next/link";
-import { BookOpen, FileText } from "lucide-react";
+'use client';
+
+import React from 'react';
+import { useBookletStore } from '@/lib/booklet-imposition/store/useBookletStore';
+import { ProgressBar } from '@/components/ui/booklet-imposition/ProgressBar';
+import { StepUpload } from '@/components/tools/booklet-imposition/steps/StepUpload';
+import { StepAnalysis } from '@/components/tools/booklet-imposition/steps/StepAnalysis';
+import { StepSettings } from '@/components/tools/booklet-imposition/steps/StepSettings';
+import { StepPreview } from '@/components/tools/booklet-imposition/steps/StepPreview';
+import { StepExport } from '@/components/tools/booklet-imposition/steps/StepExport';
+import { Alert } from '@/components/ui/booklet-imposition/Alert';
+import { BookOpen } from 'lucide-react';
 
 export default function Home() {
+    const { currentStep, errorMessage } = useBookletStore();
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-[#E0F7F4] via-white to-gray-50">
-            <div className="container mx-auto px-4 py-20">
-                <div className="text-center mb-16">
-                    <h1 className="text-5xl md:text-6xl font-bold mb-4 text-gray-900">
-                        PDF Booklet Tools
-                    </h1>
-                    <p className="text-xl text-gray-700 max-w-2xl mx-auto">
-                        Transform your PDFs into professionally formatted booklets for printing
-                    </p>
+        <div className="min-h-screen bg-gradient-to-br from-teal-50 via-mint-50 to-purple-50">
+            {/* Header */}
+            <header className="glass-effect border-b border-teal-100 sticky top-0 z-50 shadow-sm">
+                <div className="container mx-auto px-4 py-5">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                            <div className="w-14 h-14 bg-gradient-to-br from-teal-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-500/30">
+                                <BookOpen className="w-8 h-8 text-white" />
+                            </div>
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold text-teal-600 tracking-wider uppercase">
+                                        Workspace
+                                    </span>
+                                </div>
+                                <h1 className="text-2xl font-bold text-gray-900">
+                                    Booklet Imposition Tool
+                                </h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div className="w-full max-w-7xl mx-auto px-4 py-8">
+                {/* Progress Bar */}
+                <ProgressBar currentStep={currentStep} />
+
+                {/* Error Display */}
+                {errorMessage && (
+                    <div className="mb-6 animate-fade-in">
+                        <Alert type="error" title="Error">
+                            {errorMessage}
+                        </Alert>
+                    </div>
+                )}
+
+                {/* Step Content */}
+                <div className="animate-fade-in">
+                    {currentStep === 1 && <StepUpload />}
+                    {currentStep === 2 && <StepAnalysis />}
+                    {currentStep === 3 && <StepSettings />}
+                    {currentStep === 4 && <StepPreview />}
+                    {currentStep === 5 && <StepExport />}
                 </div>
 
-                <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                    <Link
-                        href="/flipbook"
-                        className="group"
-                    >
-                        <div className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-[#00BFA6] p-8 h-full flex flex-col">
-                            <div className="flex items-center justify-center mb-6">
-                                <div className="w-20 h-20 bg-[#E0F7F4] rounded-lg flex items-center justify-center group-hover:bg-[#00BFA6] transition-colors">
-                                    <BookOpen className="w-12 h-12 text-[#00BFA6] group-hover:text-white transition-colors" />
+                {/* Help Section */}
+                <div className="mt-16 max-w-3xl mx-auto">
+                    <div className="glass-effect border border-teal-100 rounded-3xl p-8 shadow-lg hover:shadow-glow transition-all duration-300">
+                        <h3 className="text-xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                            <span className="inline-flex items-center justify-center w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl text-white text-lg shadow-lg shadow-teal-500/30">
+                                ?
+                            </span>
+                            How to Use This Tool
+                        </h3>
+                        <ol className="space-y-4 text-sm text-gray-700">
+                            <li className="flex items-start gap-3">
+                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-teal-100 text-teal-700 font-bold text-xs flex-shrink-0 mt-0.5">1</span>
+                                <div>
+                                    <strong className="text-teal-700">Upload:</strong> Select your PDF file (maximum 50MB)
                                 </div>
-                            </div>
-                            <h2 className="text-2xl font-semibold mb-3 text-gray-900 text-center">
-                                Flipbook Converter
-                            </h2>
-                            <p className="text-gray-600 text-center flex-1">
-                                Convert your PDF into a booklet with interactive flipbook preview and sheet-wise layout
-                            </p>
-                            <div className="mt-6 flex items-center justify-center gap-2 text-[#00BFA6] font-medium group-hover:gap-3 transition-all">
-                                Get Started
-                                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </div>
-                        </div>
-                    </Link>
-
-                    <Link
-                        href="/booklet"
-                        className="group"
-                    >
-                        <div className="bg-white rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 border-2 border-transparent hover:border-[#A259FF] p-8 h-full flex flex-col">
-                            <div className="flex items-center justify-center mb-6">
-                                <div className="w-20 h-20 bg-purple-100 rounded-lg flex items-center justify-center group-hover:bg-[#A259FF] transition-colors">
-                                    <FileText className="w-12 h-12 text-[#A259FF] group-hover:text-white transition-colors" />
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-teal-100 text-teal-700 font-bold text-xs flex-shrink-0 mt-0.5">2</span>
+                                <div>
+                                    <strong className="text-teal-700">Analysis:</strong> Review your document information
                                 </div>
-                            </div>
-                            <h2 className="text-2xl font-semibold mb-3 text-gray-900 text-center">
-                                Booklet Designer
-                            </h2>
-                            <p className="text-gray-600 text-center flex-1">
-                                Design and preview print-ready booklets with customizable settings and layout preview
-                            </p>
-                            <div className="mt-6 flex items-center justify-center gap-2 text-[#A259FF] font-medium group-hover:gap-3 transition-all">
-                                Get Started
-                                <svg className="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                                </svg>
-                            </div>
-                        </div>
-                    </Link>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-teal-100 text-teal-700 font-bold text-xs flex-shrink-0 mt-0.5">3</span>
+                                <div>
+                                    <strong className="text-teal-700">Settings:</strong> Configure paper size, duplex mode, and margins
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-teal-100 text-teal-700 font-bold text-xs flex-shrink-0 mt-0.5">4</span>
+                                <div>
+                                    <strong className="text-teal-700">Preview:</strong> Check the imposed layout
+                                </div>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-teal-100 text-teal-700 font-bold text-xs flex-shrink-0 mt-0.5">5</span>
+                                <div>
+                                    <strong className="text-teal-700">Export:</strong> Download and print your booklet
+                                </div>
+                            </li>
+                        </ol>
+                    </div>
                 </div>
             </div>
+
+            {/* Footer */}
+            <footer className="glass-effect border-t border-teal-100 mt-16">
+                <div className="container mx-auto px-4 py-6">
+                    <div className="text-center text-sm text-gray-600">
+                        <p>© 2025 Booklet Imposition Tool. All rights reserved.</p>
+                    </div>
+                </div>
+            </footer>
         </div>
     );
 }
