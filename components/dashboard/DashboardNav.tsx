@@ -5,12 +5,49 @@ import React, { useState, useEffect } from 'react';
 import { Menu, X, ChevronDown, Settings, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 import { UserButton, useUser } from '@clerk/nextjs';
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs';
 
-export const DashboardNav = ({ isPro = false }) => {
+export const DashboardNav = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const [isAccountOpen, setIsAccountOpen] = useState(false);
+    const [isPro, setIsPro] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const { user } = useUser();
+    const supabase = createClientComponentClient();
+
+    // Check Pro status from Supabase
+    useEffect(() => {
+        const checkProStatus = async () => {
+            if (!user?.id) {
+                setIsLoading(false);
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('is_pro, subscription_status')
+                    .eq('clerk_user_id', user.id)
+                    .single();
+
+                if (error) {
+                    console.error('Error fetching pro status:', error);
+                    setIsPro(false);
+                } else {
+                    // Check if user is pro based on subscription status
+                    setIsPro(data?.is_pro === true || data?.subscription_status === 'active');
+                }
+            } catch (error) {
+                console.error('Error checking pro status:', error);
+                setIsPro(false);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        checkProStatus();
+    }, [user?.id, supabase]);
 
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -29,7 +66,7 @@ export const DashboardNav = ({ isPro = false }) => {
                         <div className="text-2xl font-bold bg-gradient-to-r from-teal-500 to-cyan-500 bg-clip-text text-transparent">
                             PrintPrev
                         </div>
-                        {isPro && (
+                        {isPro && !isLoading && (
                             <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs px-2 py-0.5 rounded-full">
                                 PRO
                             </span>
@@ -76,7 +113,7 @@ export const DashboardNav = ({ isPro = false }) => {
                         </div>
 
                         {/* Assets - Pro only */}
-                        {isPro ? (
+                        {!isLoading && (isPro ? (
                             <Link href="/dashboard/assets" className="text-gray-700 hover:text-teal-600 transition font-medium">
                                 Assets
                             </Link>
@@ -87,14 +124,14 @@ export const DashboardNav = ({ isPro = false }) => {
                                     <span className="bg-orange-500 text-white text-xs px-2 py-0.5 rounded-full">Pro</span>
                                 </span>
                                 <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-1 bg-gray-800 text-white text-sm rounded opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 whitespace-nowrap">
-    Upgrade to Pro to access assets
-    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full border-4 border-transparent border-b-gray-800"></div>
-</div>
+                                    Upgrade to Pro to access assets
+                                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-full border-4 border-transparent border-b-gray-800"></div>
+                                </div>
                             </div>
-                        )}
+                        ))}
 
                         {/* Pricing/Upgrade */}
-                        {!isPro && (
+                        {!isLoading && !isPro && (
                             <Link 
                                 href="/pricing" 
                                 className="bg-gradient-to-r from-orange-400 to-pink-400 text-white px-4 py-2 rounded-full font-bold hover:shadow-lg hover:scale-105 transition-all"
@@ -139,7 +176,7 @@ export const DashboardNav = ({ isPro = false }) => {
                                         {user?.firstName || user?.username || 'User'}
                                     </p>
                                     <p className="text-sm text-gray-500">
-                                        {isPro ? 'Pro Plan' : 'Free Plan'}
+                                        {isLoading ? 'Loading...' : (isPro ? 'Pro Plan' : 'Free Plan')}
                                     </p>
                                 </div>
                             </div>
@@ -181,7 +218,7 @@ export const DashboardNav = ({ isPro = false }) => {
                             Sticker Pack
                         </Link>
                         
-                        {isPro && (
+                        {!isLoading && isPro && (
                             <Link 
                                 href="/dashboard/assets" 
                                 className="block px-4 py-3 text-gray-700 hover:bg-teal-50 rounded transition-colors"
@@ -191,7 +228,7 @@ export const DashboardNav = ({ isPro = false }) => {
                             </Link>
                         )}
                         
-                        {!isPro && (
+                        {!isLoading && !isPro && (
                             <Link 
                                 href="/pricing" 
                                 className="block px-4 py-3 bg-gradient-to-r from-orange-400 to-pink-400 text-white font-bold rounded mx-4 text-center hover:shadow-lg transition-all"
