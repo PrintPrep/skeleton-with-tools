@@ -21,18 +21,18 @@ const FeatureCard = ({ icon: Icon, title, shortDesc, details, index }) => {
             {/* Zigzag staircase effect */}
             <div
                 className={`absolute hidden lg:block w-20 h-20 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-xl transform rotate-45 z-0 transition-all duration-500 group-hover:scale-110 group-hover:rotate-12 ${
-                    isEven 
-                        ? '-left-10 top-6' 
+                    isEven
+                        ? '-left-10 top-6'
                         : '-right-10 top-6'
                 }`}
             />
-            
+
             {/* Step connector lines */}
             {index > 0 && (
                 <div
                     className={`hidden lg:block absolute h-0.5 bg-gradient-to-r from-cyan-300 to-teal-400 w-24 transform transition-all duration-500 group-hover:scale-110 ${
-                        isEven 
-                            ? 'left-24 top-1/2 -translate-y-1/2 -translate-x-6' 
+                        isEven
+                            ? 'left-24 top-1/2 -translate-y-1/2 -translate-x-6'
                             : 'right-24 top-1/2 -translate-y-1/2 translate-x-6'
                     }`}
                 />
@@ -41,10 +41,10 @@ const FeatureCard = ({ icon: Icon, title, shortDesc, details, index }) => {
             {/* Content Card */}
             <div
                 className={`relative w-full max-w-lg bg-white/90 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-xl transition-all duration-500 z-10
-                    ${isHovered 
-                        ? 'shadow-cyan-500/10 transform -translate-y-1 scale-[1.02]' 
-                        : 'shadow-lg'
-                    }
+                    ${isHovered
+                    ? 'shadow-cyan-500/10 transform -translate-y-1 scale-[1.02]'
+                    : 'shadow-lg'
+                }
                     ${isEven ? 'lg:ml-16' : 'lg:mr-16'}`}
             >
                 {/* Header */}
@@ -53,7 +53,7 @@ const FeatureCard = ({ icon: Icon, title, shortDesc, details, index }) => {
                         ${isHovered ? 'scale-105 rotate-3' : 'scale-100'}`}>
                         <Icon size={24} className="text-white" />
                     </div>
-                    
+
                     <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
                             <h3 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-teal-700 bg-clip-text text-transparent">
@@ -199,11 +199,11 @@ export const Features = () => {
     ];
 
     return (
-        <section id="features" className="py-20 px-6 bg-gradient-to-br from-slate-50 via-cyan-50/30 to-teal-50/50 relative overflow-hidden">
+        <section id="features" className="py-20 px-6 bg-white from-slate-50 via-cyan-50/30 to-teal-50/50 relative overflow-hidden">
             {/* Background elements */}
             <div className="absolute top-0 left-0 w-56 h-56 bg-cyan-200/20 rounded-full blur-2xl transform -translate-x-1/2 -translate-y-1/2" />
             <div className="absolute bottom-0 right-0 w-72 h-72 bg-teal-200/20 rounded-full blur-2xl transform translate-x-1/2 translate-y-1/2" />
-            
+
             <div className="max-w-6xl mx-auto relative z-10">
                 {/* Header */}
                 <div className="text-center mb-16">
@@ -224,7 +224,7 @@ export const Features = () => {
                 <div className="relative">
                     {/* Central guideline */}
                     <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-cyan-200/50 to-teal-200/50 transform -translate-x-1/2 hidden lg:block" />
-                    
+
                     <div className="flex flex-col gap-20 lg:gap-16">
                         {features.map((feature, i) => (
                             <FeatureCard

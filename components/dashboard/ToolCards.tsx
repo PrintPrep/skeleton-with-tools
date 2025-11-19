@@ -57,7 +57,19 @@ export const ToolCards = ({ isPro = false }) => {
             iconBgColor: 'bg-teal-100',
             iconColor: 'text-teal-600',
             steps: ['Upload PDFs', 'Split & reorder pages', 'Download cleaned files'],
+            proFeature: 'Save to Assets',
             href: '/tools/pdf-toolkit'
+        },
+        {
+            icon: Ticket,
+            title: 'Ticket Layout',
+            description: 'Create business cards & numbered tickets',
+            bgColor: 'bg-purple-50',
+            iconBgColor: 'bg-purple-100',
+            iconColor: 'text-purple-600',
+            steps: ['Upload Cards / Tickets', 'Edit the specs', 'Export the optimized sheet'],
+            proFeature: 'Add Numbering',
+            href: '/tools/ticket-layout/wizard'
         },
         {
             icon: BookOpen,
@@ -67,23 +79,13 @@ export const ToolCards = ({ isPro = false }) => {
             iconBgColor: 'bg-orange-100',
             iconColor: 'text-orange-600',
             steps: ['Upload PDF', 'Choose booklet mode', 'Download arranged pages'],
+            proFeature: 'Custom Templates',
             href: '/tools/booklet-imposition'
-        },
-        {
-            icon: Ticket,
-            title: 'Ticket Layout',
-            description: 'Create numbered tickets & cards',
-            bgColor: 'bg-purple-50',
-            iconBgColor: 'bg-purple-100',
-            iconColor: 'text-purple-600',
-            steps: ['Choose grid size', 'Add numbering', 'Export sheet'],
-            proFeature: 'Save to Assets',
-            href: '/tools/ticket-layout/wizard'
         },
         {
             icon: Sticker,
             title: 'Sticker Pack',
-            description: 'Auto-arrange images into print sheets',
+            description: 'Auto-arrange multiple images into print sheets',
             bgColor: 'bg-green-50',
             iconBgColor: 'bg-green-100',
             iconColor: 'text-green-600',
