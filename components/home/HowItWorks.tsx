@@ -5,8 +5,8 @@ import { Upload, Settings, FileText, Download } from 'lucide-react';
 
 export const HowItWorks = () => {
     const steps = [
-        { icon: Upload, title: 'Upload your files', desc: 'Drag-and-drop interface' },
         { icon: Settings, title: 'Choose a tool', desc: 'Toolkit, booklet, numbering, or sticker pack' },
+        { icon: Upload, title: 'Upload your files', desc: 'Drag-and-drop interface' },
         { icon: FileText, title: 'Customize', desc: 'Live previews, instant updates' },
         { icon: Download, title: 'Export', desc: 'Print-ready PDFs optimized for your layout' },
     ];
