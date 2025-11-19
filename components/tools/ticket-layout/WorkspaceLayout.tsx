@@ -12,10 +12,6 @@ export default function WorkspaceLayout() {
     return (
         <div className="flex w-full flex-col items-center gap-4">
             {/* Top controls */}
-            <div className="flex w-full max-w-5xl items-center justify-end px-4">
-                <ExportButton />
-            </div>
-
             {/* viewport wrapper with proper constraints */}
             <div
                 ref={previewWrapperRef}

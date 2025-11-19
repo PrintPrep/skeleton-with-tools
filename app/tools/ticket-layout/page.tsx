@@ -4,6 +4,7 @@
 import WizardUploader from "@/components/tools/ticket-layout/WizardUploader";
 import OptimizePanel from "@/components/tools/ticket-layout/OptimizePanel";
 import WorkspaceLayout from "@/components/tools/ticket-layout/WorkspaceLayout";
+import ExportButton from "@/components/tools/ticket-layout/ExportButton";
 
 export default function WorkspacePage() {
     return (
@@ -34,9 +35,7 @@ export default function WorkspacePage() {
                             <button className="rounded-lg border border-gray-200 bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-200">
                                 Share
                             </button>
-                            <button className="rounded-lg bg-[#00BFA6] px-4 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#00D1B2] hover:shadow-lg">
-                                Export
-                            </button>
+                            <ExportButton />
                         </div>
                     </div>
                 </header>
