@@ -1,3 +1,4 @@
+// app/api/webhooks/lemon-squeezy/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, SubscriptionStatus, PaymentStatus, PlanType } from '@prisma/client';
 import crypto from 'crypto';
@@ -6,11 +7,10 @@ const prisma = new PrismaClient();
 
 // Map variant IDs to plan types
 const VARIANT_TO_PLAN: { [key: string]: PlanType } = {
-  '1097562': PlanType.MONTHLY,  // Pro Monthly
-  '1097577': PlanType.YEARLY,   // Pro Yearly  
-  '1097578': PlanType.LIFETIME, // Lifetime
+  '1097562': PlanType.MONTHLY,
+  '1097577': PlanType.YEARLY,  
+  '1097578': PlanType.LIFETIME,
 };
-
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
     const signature = request.headers.get('x-signature');
 
     if (!secret) {
-      console.error('Missing LEMON_SQUEEZY_WEBHOOK_SECRET');
+      console.error('❌ Missing LEMON_SQUEEZY_WEBHOOK_SECRET');
       return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 });
     }
 
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       .digest('hex');
 
     if (signature !== computedSignature) {
-      console.error('Invalid webhook signature');
+      console.error('❌ Invalid webhook signature');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
     }
 
@@ -41,14 +41,13 @@ export async function POST(request: NextRequest) {
     console.log('🔄 Lemon Squeezy Webhook:', eventName, eventData.id);
 
     try {
-      // Handle different webhook events
       switch (eventName) {
         case 'order_created':
-          await handleOrderCreated(eventData);
+          await handleOrderCreated(eventData, data.meta);
           break;
         
         case 'subscription_created':
-          await handleSubscriptionCreated(eventData);
+          await handleSubscriptionCreated(eventData, data.meta);
           break;
         
         case 'subscription_updated':
@@ -79,14 +78,17 @@ export async function POST(request: NextRequest) {
   }
 }
 
-async function handleOrderCreated(orderData: any) {
+async function handleOrderCreated(orderData: any, metaData: any) {
   console.log('💰 Processing order:', orderData.id);
   
-  const customData = orderData.attributes.first_order_item?.product_options?.custom;
-  const userId = customData?.user_id;
+  // FIXED: Get user_id from the correct location
+  const userId = metaData.custom_data?.user_id || orderData.attributes.first_order_item?.meta?.custom_data?.user_id;
+  
+  console.log('🔍 Looking for user_id in meta:', metaData.custom_data);
+  console.log('🔍 Order attributes:', orderData.attributes);
   
   if (!userId) {
-    console.error('❌ No user ID in order custom data');
+    console.error('❌ No user ID found in order. Custom data:', metaData.custom_data);
     return;
   }
 
@@ -104,8 +106,9 @@ async function handleOrderCreated(orderData: any) {
   await prisma.payment.create({
     data: {
       userid: userId,
+      provider: 'lemon_squeezy',
       providerChargeId: orderData.id,
-      amountCents: Math.round(orderData.attributes.total * 100),
+      amountCents: Math.round(parseFloat(orderData.attributes.total) * 100),
       status: PaymentStatus.COMPLETED,
       currency: orderData.attributes.currency,
       paidAt: new Date(orderData.attributes.created_at),
@@ -115,15 +118,14 @@ async function handleOrderCreated(orderData: any) {
   console.log('✅ Payment record created for user:', userId);
 }
 
-async function handleSubscriptionCreated(subscriptionData: any) {
+async function handleSubscriptionCreated(subscriptionData: any, metaData: any) {
   console.log('🚀 Processing subscription creation:', subscriptionData.id);
   
-  const customerData = subscriptionData.attributes.urls.customer_portal;
-  // Extract user ID from custom data (we'll set this in checkout)
-  const userId = await findUserIdFromSubscription(subscriptionData);
+  // FIXED: Get user_id from meta.custom_data
+  const userId = metaData.custom_data?.user_id;
   
   if (!userId) {
-    console.error('❌ Could not find user for subscription');
+    console.error('❌ No user ID found in subscription meta:', metaData);
     return;
   }
 
@@ -159,8 +161,16 @@ async function handleSubscriptionCreated(subscriptionData: any) {
 async function handleSubscriptionUpdated(subscriptionData: any) {
   console.log('📝 Processing subscription update:', subscriptionData.id);
   
-  const userId = await findUserIdFromSubscription(subscriptionData);
-  if (!userId) return;
+  // Find existing subscription to get userId
+  const existingSub = await prisma.subscription.findUnique({
+    where: { subscriptionId: subscriptionData.id },
+    select: { userid: true }
+  });
+
+  if (!existingSub) {
+    console.error('❌ Subscription not found:', subscriptionData.id);
+    return;
+  }
 
   const status = mapSubscriptionStatus(subscriptionData.attributes.status);
   const variantId = subscriptionData.attributes.variant_id.toString();
@@ -178,17 +188,14 @@ async function handleSubscriptionUpdated(subscriptionData: any) {
   });
 
   const isActive = status === SubscriptionStatus.ACTIVE;
-  await updateUserFeatures(userId, planType, isActive);
+  await updateUserFeatures(existingSub.userid, planType, isActive);
 
-  console.log('✅ Subscription updated for user:', userId, 'Status:', status);
+  console.log('✅ Subscription updated for user:', existingSub.userid, 'Status:', status);
 }
 
 async function handleSubscriptionCancelled(subscriptionData: any) {
   console.log('⏸️ Processing subscription cancellation:', subscriptionData.id);
   
-  const userId = await findUserIdFromSubscription(subscriptionData);
-  if (!userId) return;
-
   await prisma.subscription.update({
     where: { subscriptionId: subscriptionData.id },
     data: {
@@ -198,15 +205,18 @@ async function handleSubscriptionCancelled(subscriptionData: any) {
     },
   });
 
-  // User keeps features until period end
-  console.log('✅ Subscription cancelled for user:', userId);
+  console.log('✅ Subscription cancelled:', subscriptionData.id);
 }
 
 async function handleSubscriptionExpired(subscriptionData: any) {
   console.log('❌ Processing subscription expiration:', subscriptionData.id);
   
-  const userId = await findUserIdFromSubscription(subscriptionData);
-  if (!userId) return;
+  const existingSub = await prisma.subscription.findUnique({
+    where: { subscriptionId: subscriptionData.id },
+    select: { userid: true }
+  });
+
+  if (!existingSub) return;
 
   await prisma.subscription.update({
     where: { subscriptionId: subscriptionData.id },
@@ -217,24 +227,8 @@ async function handleSubscriptionExpired(subscriptionData: any) {
   });
 
   // Downgrade user to free
-  await updateUserFeatures(userId, PlanType.FREE, false);
-  console.log('✅ Subscription expired, user downgraded:', userId);
-}
-
-// Helper functions
-async function findUserIdFromSubscription(subscriptionData: any): Promise<string | null> {
-  // In a real implementation, you might need to:
-  // 1. Look up the order associated with this subscription
-  // 2. Check the order's custom data for user_id
-  // 3. Or maintain a mapping table
-  
-  // For now, we'll try to find by subscription ID in our database
-  const existingSub = await prisma.subscription.findUnique({
-    where: { subscriptionId: subscriptionData.id },
-    select: { userid: true }
-  });
-  
-  return existingSub?.userid || null;
+  await updateUserFeatures(existingSub.userid, PlanType.FREE, false);
+  console.log('✅ Subscription expired, user downgraded:', existingSub.userid);
 }
 
 function mapSubscriptionStatus(lsStatus: string): SubscriptionStatus {
@@ -284,13 +278,12 @@ function getFeatureFlagsForPlan(planType: PlanType, isActive: boolean) {
 
   const proFeatures = {
     storageLimit: 5368709120, // 5GB
-    maxFilesPerMonth: 1000, // Unlimited effectively
+    maxFilesPerMonth: 1000,
     canUseAdvancedTools: true,
     canRemoveWatermark: true,
     canBulkProcess: true,
   };
 
-  // Lifetime gets extra features maybe?
   if (planType === PlanType.LIFETIME) {
     return {
       ...proFeatures,

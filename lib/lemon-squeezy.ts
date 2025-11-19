@@ -1,3 +1,5 @@
+// lib/lemon-squeezy.ts
+
 export interface LemonSqueezyProduct {
   id: string;
   name: string;
@@ -6,88 +8,63 @@ export interface LemonSqueezyProduct {
 
 export const LEMON_SQUEEZY_PRODUCTS = {
   PRO_MONTHLY: {
-    id: '1097562', // Your monthly variant ID
+    id: '1097562',
     name: 'Pro Monthly',
     interval: 'month' as const
   },
   PRO_YEARLY: {
-    id: '1097577', // Your yearly variant ID
+    id: '1097577',
     name: 'Pro Yearly', 
     interval: 'year' as const
   },
   LIFETIME: {
-    id: '1097578', // Your lifetime variant ID
+    id: '1097578',
     name: 'Lifetime',
     interval: 'once' as const
   }
 };
 
+/**
+ * Client-side function to initiate checkout
+ * This calls YOUR API route which then calls Lemon Squeezy
+ */
 export async function createLemonSqueezyCheckout(
   variantId: string,
   userId: string,
   userEmail: string
 ): Promise<string> {
   try {
-    const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
+    console.log('🔧 Calling /api/create-routes with variantId:', variantId);
+    
+    // Call YOUR Next.js API route (not Lemon Squeezy directly)
+    const response = await fetch('/api/create-routes', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/vnd.api+json',
-        'Accept': 'application/vnd.api+json',
-        'Authorization': `Bearer ${process.env.LEMON_SQUEEZY_API_KEY}`
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        data: {
-          type: 'checkouts',
-          attributes: {
-            custom_data: {
-              user_id: userId,
-              user_email: userEmail
-            },
-            checkout_options: {
-              embed: false,
-              media: false,
-              button_color: '#0d9488'
-            },
-            checkout_data: {
-              email: userEmail,
-              custom: {
-                user_id: userId
-              }
-            }
-          },
-          relationships: {
-            store: {
-              data: {
-                type: 'stores',
-                id: process.env.LEMON_SQUEEZY_STORE_ID
-              }
-            },
-            variant: {
-              data: {
-                type: 'variants',
-                id: variantId
-              }
-            }
-          }
-        }
+        variantId: variantId
+        // Don't need to send userId/email - the API route gets it from Clerk auth()
       })
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Lemon Squeezy API error:', errorData);
-      throw new Error(`Failed to create checkout: ${response.status}`);
+      console.error('❌ API route error:', errorData);
+      throw new Error(errorData.error || `Failed to create checkout (HTTP ${response.status})`);
     }
 
     const data = await response.json();
     
-    if (!data.data.attributes.url) {
-      throw new Error('No checkout URL received from Lemon Squeezy');
+    if (!data.url) {
+      throw new Error('No checkout URL received from API');
     }
 
-    return data.data.attributes.url;
+    console.log('✅ Checkout URL received:', data.url);
+    return data.url;
+    
   } catch (error) {
-    console.error('Error creating Lemon Squeezy checkout:', error);
+    console.error('❌ Error creating checkout:', error);
     throw error;
   }
 }
