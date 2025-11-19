@@ -24,6 +24,11 @@ export default function EditItemDialog({
     const [height, setHeight] = useState(0);
     const [lockAspectRatio, setLockAspectRatio] = useState(true);
 
+    // Temporary string states for input fields to allow empty values
+    const [widthInput, setWidthInput] = useState('');
+    const [heightInput, setHeightInput] = useState('');
+    const [countInput, setCountInput] = useState('');
+
     useEffect(() => {
         if (item) {
             setName(item.name);
@@ -31,33 +36,61 @@ export default function EditItemDialog({
             setWidth(item.width);
             setHeight(item.height);
             setLockAspectRatio(item.lockAspectRatio);
+            setWidthInput(item.width.toFixed(1));
+            setHeightInput(item.height.toFixed(1));
+            setCountInput(item.count.toString());
         }
     }, [item]);
 
-    const handleWidthChange = (newWidth: number) => {
-        setWidth(newWidth);
-        if (lockAspectRatio && item) {
-            const ratio = item.originalHeight / item.originalWidth;
-            setHeight(newWidth * ratio);
+    const handleWidthChange = (value: string) => {
+        setWidthInput(value);
+        const newWidth = parseFloat(value);
+        if (!isNaN(newWidth) && newWidth > 0) {
+            setWidth(newWidth);
+            if (lockAspectRatio && item) {
+                const ratio = item.originalHeight / item.originalWidth;
+                const newHeight = newWidth * ratio;
+                setHeight(newHeight);
+                setHeightInput(newHeight.toFixed(1));
+            }
         }
     };
 
-    const handleHeightChange = (newHeight: number) => {
-        setHeight(newHeight);
-        if (lockAspectRatio && item) {
-            const ratio = item.originalWidth / item.originalHeight;
-            setWidth(newHeight * ratio);
+    const handleHeightChange = (value: string) => {
+        setHeightInput(value);
+        const newHeight = parseFloat(value);
+        if (!isNaN(newHeight) && newHeight > 0) {
+            setHeight(newHeight);
+            if (lockAspectRatio && item) {
+                const ratio = item.originalWidth / item.originalHeight;
+                const newWidth = newHeight * ratio;
+                setWidth(newWidth);
+                setWidthInput(newWidth.toFixed(1));
+            }
+        }
+    };
+
+    const handleCountChange = (value: string) => {
+        setCountInput(value);
+        const newCount = parseInt(value);
+        if (!isNaN(newCount) && newCount > 0) {
+            setCount(newCount);
         }
     };
 
     const handleSave = () => {
         if (item) {
+            // Ensure valid values before saving
+            const finalWidth = width > 0 ? width : item.width;
+            const finalHeight = height > 0 ? height : item.height;
+            const finalCount = count > 0 ? count : 1;
+
             onSave({
                 ...item,
                 name,
-                count,
-                width: Math.round(width * 100) / 100,
-                height: Math.round(height * 100) / 100,
+                count: finalCount,
+                width: Math.round(finalWidth * 100) / 100,
+                height: Math.round(finalHeight * 100) / 100,
                 lockAspectRatio,
             });
         }
@@ -92,8 +125,8 @@ export default function EditItemDialog({
                         <input
                             type="number"
                             min="1"
-                            value={count}
-                            onChange={(e) => setCount(parseInt(e.target.value) || 1)}
+                            value={countInput}
+                            onChange={(e) => handleCountChange(e.target.value)}
                             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-500 focus:border-[#00BFA6] focus:outline-none focus:ring-2 focus:ring-[#00BFA6]/20"
                         />
                     </div>
@@ -122,8 +155,8 @@ export default function EditItemDialog({
                                 type="number"
                                 min="1"
                                 step="0.1"
-                                value={width.toFixed(1)}
-                                onChange={(e) => handleWidthChange(parseFloat(e.target.value) || 0)}
+                                value={widthInput}
+                                onChange={(e) => handleWidthChange(e.target.value)}
                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-500 focus:border-[#00BFA6] focus:outline-none focus:ring-2 focus:ring-[#00BFA6]/20"
                             />
                         </div>
@@ -135,8 +168,8 @@ export default function EditItemDialog({
                                 type="number"
                                 min="1"
                                 step="0.1"
-                                value={height.toFixed(1)}
-                                onChange={(e) => handleHeightChange(parseFloat(e.target.value) || 0)}
+                                value={heightInput}
+                                onChange={(e) => handleHeightChange(e.target.value)}
                                 className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-500 focus:border-[#00BFA6] focus:outline-none focus:ring-2 focus:ring-[#00BFA6]/20"
                             />
                         </div>

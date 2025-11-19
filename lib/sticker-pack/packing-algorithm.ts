@@ -121,20 +121,31 @@ function findPlacement(
 ): { x: number; y: number; width: number; height: number; rotation: number } | null {
     const orientations: { width: number; height: number; rotation: number }[] = [];
 
-    // Add orientations based on settings
-    if (!settings.verticalOnly) {
-        orientations.push({ width: item.width, height: item.height, rotation: 0 });
-    }
-
-    if (!settings.horizontalOnly && settings.autoRotate) {
-        orientations.push({ width: item.height, height: item.width, rotation: 90 });
-    }
-
+    // Determine orientations based on settings
     if (settings.verticalOnly) {
+        // Vertical only: longer edge should be vertical (parallel to height)
+        if (item.width > item.height) {
+            // Wide image - rotate 90° to make it tall
+            orientations.push({ width: item.height, height: item.width, rotation: 90 });
+        } else {
+            // Already tall or square - no rotation
+            orientations.push({ width: item.width, height: item.height, rotation: 0 });
+        }
+    } else if (settings.horizontalOnly) {
+        // Horizontal only: longer edge should be horizontal (parallel to width)
+        if (item.height > item.width) {
+            // Tall image - rotate 90° to make it wide
+            orientations.push({ width: item.height, height: item.width, rotation: 90 });
+        } else {
+            // Already wide or square - no rotation
+            orientations.push({ width: item.width, height: item.height, rotation: 0 });
+        }
+    } else if (settings.autoRotate) {
+        // Auto-rotate: try both orientations to find best fit
         orientations.push({ width: item.width, height: item.height, rotation: 0 });
-    }
-
-    if (settings.horizontalOnly) {
+        orientations.push({ width: item.height, height: item.width, rotation: 90 });
+    } else {
+        // Default: no rotation
         orientations.push({ width: item.width, height: item.height, rotation: 0 });
     }
 

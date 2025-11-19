@@ -33,30 +33,62 @@ export default function PageCanvas({ pageSettings, stickers }: PageCanvasProps) 
                 const width = sticker.width * scale;
                 const height = sticker.height * scale;
 
-                return (
-                    <div
-                        key={`${sticker.item.id}-${index}`}
-                        className="absolute border border-gray-200"
-                        style={{
-                            left: `${x}px`,
-                            top: `${y}px`,
-                            width: `${width}px`,
-                            height: `${height}px`,
-                            transform: sticker.rotation === 90 ? 'rotate(90deg)' : 'none',
-                            transformOrigin: 'center center',
-                        }}
-                    >
-                        <div className="relative h-full w-full">
-                            <Image
-                                src={sticker.item.imageUrl}
-                                alt={sticker.item.name}
-                                fill
-                                className="object-contain"
-                                sizes={`${width}px`}
-                            />
+                if (sticker.rotation === 90) {
+                    // For 90-degree rotation, we need to match the PDF's coordinate system
+                    // The PDF rotates around the center and then positions it
+                    // We'll position the container at the same x,y as in the PDF
+                    return (
+                        <div
+                            key={`${sticker.item.id}-${index}`}
+                            className="absolute border border-gray-200"
+                            style={{
+                                left: `${x}px`,
+                                top: `${y}px`,
+                                width: `${width}px`,
+                                height: `${height}px`,
+                            }}
+                        >
+                            <div
+                                className="relative h-full w-full"
+                                style={{
+                                    transform: 'rotate(90deg)',
+                                    transformOrigin: 'center center',
+                                }}
+                            >
+                                <Image
+                                    src={sticker.item.imageUrl}
+                                    alt={sticker.item.name}
+                                    fill
+                                    className="object-contain"
+                                    sizes={`${Math.max(width, height)}px`}
+                                />
+                            </div>
                         </div>
-                    </div>
-                );
+                    );
+                } else {
+                    return (
+                        <div
+                            key={`${sticker.item.id}-${index}`}
+                            className="absolute border border-gray-200"
+                            style={{
+                                left: `${x}px`,
+                                top: `${y}px`,
+                                width: `${width}px`,
+                                height: `${height}px`,
+                            }}
+                        >
+                            <div className="relative h-full w-full">
+                                <Image
+                                    src={sticker.item.imageUrl}
+                                    alt={sticker.item.name}
+                                    fill
+                                    className="object-contain"
+                                    sizes={`${width}px`}
+                                />
+                            </div>
+                        </div>
+                    );
+                }
             })}
 
             {/* Grid lines for reference */}

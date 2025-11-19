@@ -17,7 +17,7 @@ export const Pricing = () => {
       name: 'Free', 
       price: '$0', 
       desc: 'Basic PDF operations with limited projects.',
-      features: ['5 projects', 'Basic tools', 'Community support']
+      features: ['30 projects', 'Basic tools']
     },
     { 
       name: 'Pro', 
@@ -25,21 +25,23 @@ export const Pricing = () => {
       original: '$9.99', 
       desc: 'Unlimited projects, all tools unlocked.',
       product: LEMON_SQUEEZY_PRODUCTS.PRO_MONTHLY,
-      features: ['Unlimited projects', 'All tools', 'Priority support', 'Cloud storage']
+      features: ['Unlimited projects', 'All tools', 'Cloud storage', 'Priority support' ]
     },
     { 
       name: 'Yearly', 
-      price: '$49', 
+      price: '$49',
+      original: '$79',
       desc: 'Best value for frequent users.',
       product: LEMON_SQUEEZY_PRODUCTS.PRO_YEARLY,
-      features: ['All Pro features', 'Save 30%', 'Billed annually']
+      features: ['All Pro features', 'Save 38%', 'Billed annually']
     },
     { 
       name: 'Lifetime', 
-      price: '$79', 
+      price: '$79',
+      original: '$99',
       desc: 'One payment for forever access.',
       product: LEMON_SQUEEZY_PRODUCTS.LIFETIME,
-      features: ['Lifetime access', 'All future updates', 'Best value long-term']
+      features: ['Lifetime access', 'All Pro features', 'All future updates', 'Best value long-term']
     },
   ];
 
@@ -74,7 +76,7 @@ export const Pricing = () => {
   return (
     <section id="pricing" className="py-20 px-4 bg-gradient-to-b from-white to-cyan-50">
       <div className="max-w-6xl mx-auto">
-        <h2 className="text-4xl font-bold text-center text-gray-900 mb-4">Simple, Transparent Pricing</h2>
+        <h2 className="text-4xl font-bold text-center text-gray-900 mb-4">Pricing</h2>
         <p className="text-gray-600 text-center mb-16">No hidden fees. Cancel anytime.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
