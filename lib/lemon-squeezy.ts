@@ -1,31 +1,25 @@
-// lib/lemon-squeezy.ts
 export interface LemonSqueezyProduct {
   id: string;
   name: string;
-  price: number;
-  interval: 'month' | 'year' | 'lifetime';
+  interval?: 'month' | 'year' | 'once';
 }
 
-// Use these test IDs for now - replace with real ones later
 export const LEMON_SQUEEZY_PRODUCTS = {
   PRO_MONTHLY: {
-    id: '1097562',
+    id: '1097562', // Your monthly variant ID
     name: 'Pro Monthly',
-    price: 599,
-    interval: 'month' as const,
+    interval: 'month' as const
   },
   PRO_YEARLY: {
-    id: '1097577', 
-    name: 'Pro Yearly',
-    price: 4900,
-    interval: 'year' as const,
+    id: '1097577', // Your yearly variant ID
+    name: 'Pro Yearly', 
+    interval: 'year' as const
   },
   LIFETIME: {
-    id: '1097578',
+    id: '1097578', // Your lifetime variant ID
     name: 'Lifetime',
-    price: 7900,
-    interval: 'lifetime' as const,
-  },
+    interval: 'once' as const
+  }
 };
 
 export async function createLemonSqueezyCheckout(
@@ -33,59 +27,67 @@ export async function createLemonSqueezyCheckout(
   userId: string,
   userEmail: string
 ): Promise<string> {
-  console.log('🛒 Starting checkout process...');
-  
   try {
-    const response = await fetch('/api/checkout', {
+    const response = await fetch('https://api.lemonsqueezy.com/v1/checkouts', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/vnd.api+json',
+        'Accept': 'application/vnd.api+json',
+        'Authorization': `Bearer ${process.env.LEMON_SQUEEZY_API_KEY}`
       },
       body: JSON.stringify({
-        variantId,
-        userId, 
-        userEmail,
-      }),
+        data: {
+          type: 'checkouts',
+          attributes: {
+            custom_data: {
+              user_id: userId,
+              user_email: userEmail
+            },
+            checkout_options: {
+              embed: false,
+              media: false,
+              button_color: '#0d9488'
+            },
+            checkout_data: {
+              email: userEmail,
+              custom: {
+                user_id: userId
+              }
+            }
+          },
+          relationships: {
+            store: {
+              data: {
+                type: 'stores',
+                id: process.env.LEMON_SQUEEZY_STORE_ID
+              }
+            },
+            variant: {
+              data: {
+                type: 'variants',
+                id: variantId
+              }
+            }
+          }
+        }
+      })
     });
 
-    console.log('📡 API response status:', response.status);
-
-    // Get response as text first
-    const responseText = await response.text();
-    console.log('📄 Raw response:', responseText);
-
-    let data;
-    try {
-      data = JSON.parse(responseText);
-      console.log('✅ Parsed response:', data);
-    } catch (parseError) {
-      console.error('❌ Failed to parse response:', parseError);
-      throw new Error('Invalid response from server');
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Lemon Squeezy API error:', errorData);
+      throw new Error(`Failed to create checkout: ${response.status}`);
     }
 
-    // If we have a checkout URL, use it (even in test/fallback mode)
-    if (data.checkoutUrl) {
-      console.log('🎉 Success! Redirecting to:', data.checkoutUrl);
-      return data.checkoutUrl;
+    const data = await response.json();
+    
+    if (!data.data.attributes.url) {
+      throw new Error('No checkout URL received from Lemon Squeezy');
     }
 
-    // If no checkout URL but we have an error
-    if (data.error) {
-      console.error('❌ API error:', data.error);
-      throw new Error(data.error);
-    }
-
-    // Fallback: If everything else fails
-    console.warn('⚠️ Using fallback checkout URL');
-    return 'https://printprev.lemonsqueezy.com/checkout';
-
+    return data.data.attributes.url;
   } catch (error) {
-    console.error('💥 Checkout failed:', error);
-    
-    // Always return a fallback URL so user can at least see the pricing
-    const fallbackUrl = 'https://printprev.lemonsqueezy.com/checkout';
-    console.log('🔄 Using fallback URL:', fallbackUrl);
-    
-    return fallbackUrl;
+    console.error('Error creating Lemon Squeezy checkout:', error);
+    throw error;
   }
 }
