@@ -68,18 +68,12 @@ export default function OptimizePanel() {
         (layout.paperSize as PaperSize) || "A4"
     );
 
-    // initialize with safe values (min 3)
-    const initialPaperW = clampNumber(layout.paperWidthMm ?? 210, 3);
-    const initialPaperH = clampNumber(layout.paperHeightMm ?? 297, 3);
-    const initialCardW = clampNumber(layout.cardWidthMm ?? 50, 3);
-    const initialCardH = clampNumber(layout.cardHeightMm ?? 90, 3);
-    const initialCardCount = clampInt(layout.cardCount ?? 0, 0);
-
-    const [paperW, setPaperW] = useState<number>(initialPaperW);
-    const [paperH, setPaperH] = useState<number>(initialPaperH);
-    const [cardW, setCardW] = useState<number>(initialCardW);
-    const [cardH, setCardH] = useState<number>(initialCardH);
-    const [cardCount, setCardCount] = useState<number>(initialCardCount);
+    // Use string state to allow empty inputs
+    const [paperW, setPaperW] = useState<string>(String(layout.paperWidthMm ?? 210));
+    const [paperH, setPaperH] = useState<string>(String(layout.paperHeightMm ?? 297));
+    const [cardW, setCardW] = useState<string>(String(layout.cardWidthMm ?? 50));
+    const [cardH, setCardH] = useState<string>(String(layout.cardHeightMm ?? 90));
+    const [cardCount, setCardCount] = useState<string>(String(layout.cardCount ?? 0));
 
     const [aspectRatioLocked, setAspectRatioLocked] = useState<boolean>(
         layout.aspectRatioLocked || false
@@ -105,8 +99,8 @@ export default function OptimizePanel() {
         if (paperSize === "Custom") return;
         const preset = PRESET_SIZES[paperSize as keyof typeof PRESET_SIZES];
         if (preset) {
-            setPaperW(clampNumber(preset.w, 3));
-            setPaperH(clampNumber(preset.h, 3));
+            setPaperW(String(preset.w));
+            setPaperH(String(preset.h));
         }
     }, [paperSize]);
 
@@ -115,18 +109,18 @@ export default function OptimizePanel() {
     // -------------------------------
     useEffect(() => {
         if (layout.cardWidthMm !== undefined)
-            setCardW(clampNumber(layout.cardWidthMm, 3));
+            setCardW(String(layout.cardWidthMm));
         if (layout.cardHeightMm !== undefined)
-            setCardH(clampNumber(layout.cardHeightMm, 3));
+            setCardH(String(layout.cardHeightMm));
         if (layout.aspectRatioLocked !== undefined)
             setAspectRatioLocked(layout.aspectRatioLocked);
         if (layout.aspectRatio !== undefined) setAspectRatio(layout.aspectRatio);
         if (layout.paperWidthMm !== undefined)
-            setPaperW(clampNumber(layout.paperWidthMm, 3));
+            setPaperW(String(layout.paperWidthMm));
         if (layout.paperHeightMm !== undefined)
-            setPaperH(clampNumber(layout.paperHeightMm, 3));
+            setPaperH(String(layout.paperHeightMm));
         if (layout.cardCount !== undefined)
-            setCardCount(clampInt(layout.cardCount, 0));
+            setCardCount(String(layout.cardCount));
     }, [
         layout.cardWidthMm,
         layout.cardHeightMm,
@@ -140,11 +134,11 @@ export default function OptimizePanel() {
     function applyToStore() {
         setLayout({
             paperSize: paperSize as any,
-            paperWidthMm: Number(Math.max(3, Number(paperW || 3))),
-            paperHeightMm: Number(Math.max(3, Number(paperH || 3))),
-            cardWidthMm: Number(Math.max(3, Number(cardW || 3))),
-            cardHeightMm: Number(Math.max(3, Number(cardH || 3))),
-            cardCount: Number(clampInt(cardCount, 0)),
+            paperWidthMm: clampNumber(paperW, 3),
+            paperHeightMm: clampNumber(paperH, 3),
+            cardWidthMm: clampNumber(cardW, 3),
+            cardHeightMm: clampNumber(cardH, 3),
+            cardCount: clampInt(cardCount, 0),
             horizontalOnly,
             verticalOnly,
             autoRotate,
@@ -156,36 +150,39 @@ export default function OptimizePanel() {
     // -------------------------------
     // Card dimension handlers
     // -------------------------------
-    function handleCardHeightChange(newHeightRaw: string | number) {
-        const parsed = Number(newHeightRaw);
-        setCardH(isFinite(parsed) ? parsed : 0);
+    function handleCardHeightChange(newHeight: string) {
+        setCardH(newHeight);
 
-        if (aspectRatioLocked) {
-            const ratio = aspectRatio ?? cardW / (cardH || 1);
-            if (ratio > 0 && isFinite(ratio)) {
-                const newW = Number((Number(newHeightRaw) * ratio).toFixed(2));
-                setCardW(isFinite(newW) ? newW : cardW);
+        if (aspectRatioLocked && newHeight) {
+            const parsedHeight = Number(newHeight);
+            if (isFinite(parsedHeight) && parsedHeight > 0) {
+                const ratio = aspectRatio ?? (Number(cardW) / parsedHeight);
+                if (ratio > 0 && isFinite(ratio)) {
+                    const newW = parsedHeight * ratio;
+                    setCardW(String(newW.toFixed(2)));
+                }
             }
         }
     }
 
-    function handleCardWidthChange(newWidthRaw: string | number) {
-        const parsed = Number(newWidthRaw);
-        setCardW(isFinite(parsed) ? parsed : 0);
+    function handleCardWidthChange(newWidth: string) {
+        setCardW(newWidth);
     }
 
     function handleAspectRatioLockToggle(locked: boolean) {
         setAspectRatioLocked(locked);
         if (locked) {
+            const currentW = Number(cardW);
+            const currentH = Number(cardH);
             let currentRatio = aspectRatio;
             if (!currentRatio || !isFinite(currentRatio) || currentRatio === 0) {
-                const denom = cardH || 1;
-                currentRatio = cardW / denom;
+                const denom = currentH || 1;
+                currentRatio = currentW / denom;
                 setAspectRatio(currentRatio);
             }
-            if (currentRatio && currentRatio > 0) {
-                const adjustedWidth = Number((cardH * currentRatio).toFixed(2));
-                setCardW(isFinite(adjustedWidth) ? adjustedWidth : cardW);
+            if (currentRatio && currentRatio > 0 && currentH > 0) {
+                const adjustedWidth = currentH * currentRatio;
+                setCardW(String(adjustedWidth.toFixed(2)));
             }
         }
     }
@@ -212,27 +209,30 @@ export default function OptimizePanel() {
     // -------------------------------
     // Paper dimension handlers
     // -------------------------------
-    function handlePaperWidthChange(valueRaw: string | number) {
-        const parsed = Number(valueRaw);
-        setPaperW(isFinite(parsed) ? parsed : 0);
-        const matched = Object.entries(PRESET_SIZES).find(
-            ([, dim]) => dim.w === parsed && dim.h === paperH
-        );
-        setPaperSize(matched ? (matched[0] as PaperSize) : "Custom");
+    function handlePaperWidthChange(value: string) {
+        setPaperW(value);
+        const parsed = Number(value);
+        if (isFinite(parsed)) {
+            const matched = Object.entries(PRESET_SIZES).find(
+                ([, dim]) => dim.w === parsed && dim.h === Number(paperH)
+            );
+            setPaperSize(matched ? (matched[0] as PaperSize) : "Custom");
+        }
     }
 
-    function handlePaperHeightChange(valueRaw: string | number) {
-        const parsed = Number(valueRaw);
-        setPaperH(isFinite(parsed) ? parsed : 0);
-        const matched = Object.entries(PRESET_SIZES).find(
-            ([, dim]) => dim.w === paperW && dim.h === parsed
-        );
-        setPaperSize(matched ? (matched[0] as PaperSize) : "Custom");
+    function handlePaperHeightChange(value: string) {
+        setPaperH(value);
+        const parsed = Number(value);
+        if (isFinite(parsed)) {
+            const matched = Object.entries(PRESET_SIZES).find(
+                ([, dim]) => dim.w === Number(paperW) && dim.h === parsed
+            );
+            setPaperSize(matched ? (matched[0] as PaperSize) : "Custom");
+        }
     }
 
-    function handleCardCountChange(raw: string | number) {
-        const parsed = Number(raw);
-        setCardCount(isFinite(parsed) ? Math.floor(parsed) : 0);
+    function handleCardCountChange(value: string) {
+        setCardCount(value);
     }
 
     // -------------------------------
@@ -242,11 +242,11 @@ export default function OptimizePanel() {
         applyToStore();
 
         const opts = {
-            paperWidthMm: Math.max(3, Number(paperW || 3)),
-            paperHeightMm: Math.max(3, Number(paperH || 3)),
-            cardWidthMm: Math.max(3, Number(cardW || 3)),
-            cardHeightMm: Math.max(3, Number(cardH || 3)),
-            cardCount: Number(cardCount) > 0 ? Number(cardCount) : undefined,
+            paperWidthMm: clampNumber(paperW, 3),
+            paperHeightMm: clampNumber(paperH, 3),
+            cardWidthMm: clampNumber(cardW, 3),
+            cardHeightMm: clampNumber(cardH, 3),
+            cardCount: clampInt(cardCount, 0) > 0 ? clampInt(cardCount, 0) : undefined,
             horizontalOnly,
             verticalOnly,
             autoRotate,

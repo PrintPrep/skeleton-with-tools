@@ -61,7 +61,7 @@ export const DashboardNav = ({ isPro = false }) => {
                                     Booklet Imposition
                                 </Link>
                                 <Link 
-                                    href="/tools/ticket-layout" 
+                                    href="/tools/ticket-layout/wizard"
                                     className="block px-4 py-3 text-gray-700 hover:bg-teal-50 transition-colors"
                                 >
                                     Ticket Layout

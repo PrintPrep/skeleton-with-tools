@@ -22,6 +22,7 @@ function looksLikeImageByName(name?: string) {
 /**
  * PlacementSlot
  * - Render image preview for uploaded images (object URL) or for PDF preview images (previewUrl).
+ * - showBackSide prop: if true, display back side with mirrored position and adjusted rotation
  * - Tries several heuristics to decide whether the uploaded side is an image:
  *    1) front.type === "image"
  *    2) front.file?.type startsWith("image/")
@@ -32,16 +33,44 @@ export default function PlacementSlot({
                                           p,
                                           front,
                                           pxPerMm,
+                                          showBackSide = false,
+                                          paperWidthMm = 210,
                                       }: {
     p: Placement;
     front?: SideFile;
     pxPerMm: number;
+    showBackSide?: boolean;
+    paperWidthMm?: number;
 }) {
-    const left = p.xMm * pxPerMm;
-    const top = p.yMm * pxPerMm;
+    // Calculate position and rotation based on side
+    let xMm = p.xMm;
+    let yMm = p.yMm;
+    let rotation = p.rotation ?? 0;
+
+    if (showBackSide) {
+        // Position transformation: mirror horizontally around paper center
+        const centerX = p.xMm + p.widthMm / 2;
+        const centerY = p.yMm + p.heightMm / 2;
+
+        const newCenterX = paperWidthMm - centerX;
+        const newCenterY = centerY;
+
+        xMm = newCenterX - p.widthMm / 2;
+        yMm = newCenterY - p.heightMm / 2;
+
+        // Rotation transformation
+        // Horizontal (0°) stays 0°
+        // Rotated (90° CW) becomes 90° CCW (270° or -90°)
+        if (rotation === 90) {
+            rotation = 270;
+        }
+    }
+
+    const left = xMm * pxPerMm;
+    const top = yMm * pxPerMm;
     const w = p.widthMm * pxPerMm;
     const h = p.heightMm * pxPerMm;
-    const isRot = (p.rotation ?? 0) === 90;
+    const isRot = rotation === 90 || rotation === 270;
 
     const slotStyle: React.CSSProperties = {
         position: "absolute",
@@ -76,6 +105,10 @@ export default function PlacementSlot({
     // - else undefined (show placeholder)
     const imageSrc = hasImageSource ? front?.url : pdfPreviewUrl ?? undefined;
 
+    const placeholderText = showBackSide
+        ? (front ? "Back page (PDF/image)" : "No back uploaded")
+        : (front ? "Front page (PDF/image)" : "No front uploaded");
+
     return (
         <div key={p.index} style={slotStyle} title={`#${p.index + 1}`}>
             {imageSrc ? (
@@ -86,7 +119,7 @@ export default function PlacementSlot({
                         style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                     />
                 ) : (
-                    // rotated container: center and rotate 90deg so the image appears rotated inside the slot
+                    // rotated container: rotate by rotation (90° CW or 270° CCW)
                     <div
                         style={{
                             position: "absolute",
@@ -94,7 +127,7 @@ export default function PlacementSlot({
                             top: "50%",
                             width: `${h}px`,
                             height: `${w}px`,
-                            transform: "translate(-50%,-50%) rotate(90deg)",
+                            transform: `translate(-50%,-50%) rotate(${rotation}deg)`,
                             transformOrigin: "center center",
                             overflow: "hidden",
                             display: "flex",
@@ -109,7 +142,7 @@ export default function PlacementSlot({
                 )
             ) : (
                 <div className="flex items-center justify-center h-full w-full text-xs text-gray-500">
-                    {front ? "Front page (PDF/image)" : "No front uploaded"}
+                    {placeholderText}
                 </div>
             )}
 

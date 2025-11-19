@@ -23,8 +23,12 @@ interface PaperPreviewProps {
 
 export default function PaperPreview({ wrapperRef }: PaperPreviewProps) {
     const front = useStore((s) => s.front);
+    const back = useStore((s) => s.back);
+    const isDoubleSided = useStore((s) => s.isDoubleSided);
     const layout = useStore((s) => s.layout);
     const placements = useStore((s) => s.placements) as Placement[];
+
+    const [showingFront, setShowingFront] = useState<boolean>(true);
 
     const BASE_PX_PER_MM = 3;
     const pxPerMm = BASE_PX_PER_MM;
@@ -36,12 +40,14 @@ export default function PaperPreview({ wrapperRef }: PaperPreviewProps) {
     }, [layout.paperWidthMm, layout.paperHeightMm]);
 
     const internalWrapperRef = useRef<HTMLDivElement | null>(null);
-    const pageRef = useRef<HTMLDivElement | null>(null);
-
     const effectiveWrapperRef = wrapperRef || internalWrapperRef;
 
     const [scale, setScale] = useState<number>(1);
     const [fitted, setFitted] = useState<boolean>(false);
+
+    // Determine which image to show
+    const currentSide = showingFront ? front : back;
+    const showToggle = isDoubleSided && back;
 
     useEffect(() => {
         function recompute() {
@@ -54,7 +60,6 @@ export default function PaperPreview({ wrapperRef }: PaperPreviewProps) {
             const padTop = parseFloat(style.paddingTop || "0");
             const padBottom = parseFloat(style.paddingBottom || "0");
 
-            // Account for padding and give some margin for safety
             const availableWidth = Math.max(120, wrapper.clientWidth - padLeft - padRight - 40);
             const availableHeight = Math.max(200, wrapper.clientHeight - padTop - padBottom - 40);
 
@@ -85,7 +90,6 @@ export default function PaperPreview({ wrapperRef }: PaperPreviewProps) {
         };
     }, [paperPx.w, paperPx.h, scale, effectiveWrapperRef]);
 
-    // Calculate the actual display size after scaling
     const scaledWidth = paperPx.w * scale;
     const scaledHeight = paperPx.h * scale;
 
@@ -102,7 +106,62 @@ export default function PaperPreview({ wrapperRef }: PaperPreviewProps) {
         >
             {fitted && <FittedBadge />}
 
-            {/* Container that matches the scaled size */}
+            {/* Toggle Switch (only if double-sided with back) */}
+            {showToggle && (
+                <div
+                    style={{
+                        position: "absolute",
+                        top: 12,
+                        right: 12,
+                        zIndex: 10,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        backgroundColor: "rgba(255,255,255,0.95)",
+                        padding: "8px 12px",
+                        borderRadius: "8px",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                        border: "1px solid rgba(0,0,0,0.06)"
+                    }}
+                >
+                    <span style={{ fontSize: "12px", fontWeight: "600", color: showingFront ? "#00BFA6" : "#6B7280" }}>
+                        FRONT
+                    </span>
+                    <button
+                        onClick={() => setShowingFront(!showingFront)}
+                        style={{
+                            position: "relative",
+                            width: "44px",
+                            height: "24px",
+                            borderRadius: "12px",
+                            backgroundColor: showingFront ? "#00BFA6" : "#9CA3AF",
+                            border: "none",
+                            cursor: "pointer",
+                            transition: "background-color 200ms ease",
+                            outline: "none"
+                        }}
+                    >
+                        <div
+                            style={{
+                                position: "absolute",
+                                top: "2px",
+                                left: showingFront ? "2px" : "22px",
+                                width: "20px",
+                                height: "20px",
+                                borderRadius: "50%",
+                                backgroundColor: "white",
+                                transition: "left 200ms ease",
+                                boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                            }}
+                        />
+                    </button>
+                    <span style={{ fontSize: "12px", fontWeight: "600", color: !showingFront ? "#00BFA6" : "#6B7280" }}>
+                        BACK
+                    </span>
+                </div>
+            )}
+
+            {/* Single page container */}
             <div
                 style={{
                     position: "relative",
@@ -112,7 +171,6 @@ export default function PaperPreview({ wrapperRef }: PaperPreviewProps) {
                 }}
             >
                 <div
-                    ref={pageRef}
                     className="relative rounded-md border bg-white shadow-xl"
                     style={{
                         width: `${paperPx.w}px`,
@@ -126,14 +184,47 @@ export default function PaperPreview({ wrapperRef }: PaperPreviewProps) {
                     }}
                 >
                     <div style={{ position: "relative", width: "100%", height: "100%" }}>
-                        {placements.map((p) => (
-                            <PlacementSlot
-                                key={p.index}
-                                p={p}
-                                pxPerMm={pxPerMm}
-                                front={front}
-                            />
-                        ))}
+                        {placements && placements.length > 0 ? (
+                            placements.map((p) => (
+                                <PlacementSlot
+                                    key={`${showingFront ? 'front' : 'back'}-${p.index}`}
+                                    p={p}
+                                    pxPerMm={pxPerMm}
+                                    front={currentSide}
+                                    showBackSide={!showingFront}
+                                    paperWidthMm={layout.paperWidthMm ?? 210}
+                                />
+                            ))
+                        ) : (
+                            <div style={{
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                height: "100%",
+                                color: "#9CA3AF",
+                                fontSize: "14px",
+                                fontWeight: "500"
+                            }}>
+                                No layout generated yet
+                            </div>
+                        )}
+                    </div>
+                    {/* Page label */}
+                    <div
+                        style={{
+                            position: "absolute",
+                            top: 8,
+                            right: 8,
+                            fontSize: 10,
+                            fontWeight: "600",
+                            color: "#6B7280",
+                            backgroundColor: "rgba(255,255,255,0.9)",
+                            padding: "2px 8px",
+                            borderRadius: "4px",
+                            border: "1px solid rgba(0,0,0,0.1)"
+                        }}
+                    >
+                        {showingFront ? "FRONT" : "BACK"}
                     </div>
                 </div>
 
