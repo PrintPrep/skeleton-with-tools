@@ -3,7 +3,7 @@
 // app/layout.tsx
 import "./globals.css";
 import { ClerkProvider } from '@clerk/nextjs';
-
+import { UserSyncProvider } from '@/components/providers/UserSyncProvider';
 
 export const metadata = {
     title: "PrintPrev",
@@ -11,18 +11,19 @@ export const metadata = {
 };
 
 export default function RootLayout({
-    children,
+  children,
 }: {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }) {
-    return (
-        <html lang="en">
-        {/* Add margin/padding reset to body */}
-        <body className="antialiased bg-white text-gray-900 m-0 p-0">
-            <ClerkProvider>
-                {children}
-            </ClerkProvider>
+  return (
+    <ClerkProvider>
+      <html lang="en">
+        <body>
+          <UserSyncProvider>
+            {children}
+          </UserSyncProvider>
         </body>
-        </html>
-    );
+      </html>
+    </ClerkProvider>
+  );
 }
