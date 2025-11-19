@@ -16,7 +16,7 @@ export default function Home() {
         <div className="w-full overflow-hidden">
             <Navbar />
             <Hero />
-            <Tools />
+            {/*<Tools />*/}
             <Features />
             <HowItWorks />
             <UseCases />
