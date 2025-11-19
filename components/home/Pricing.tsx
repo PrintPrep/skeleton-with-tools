@@ -129,12 +129,6 @@ export const Pricing = () => {
             </div>
           ))}
         </div>
-
-        <div className="text-center mt-12">
-          <button className="text-teal-600 font-bold hover:text-cyan-600 transition">
-            See Full Pricing <ArrowRight className="inline ml-2" size={20} />
-          </button>
-        </div>
       </div>
     </section>
   );
