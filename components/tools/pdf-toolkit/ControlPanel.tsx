@@ -299,7 +299,7 @@ export default function ControlPanel({
                 )}
             </div>
 
-            {/* Export Button */}
+            {/* Export Button
             <div className="p-4 border-t border-gray-200">
                 <button
                     onClick={onShowExportDialog}
@@ -310,6 +310,7 @@ export default function ControlPanel({
                     Merge & Export
                 </button>
             </div>
+            */}
         </div>
     );
 }
