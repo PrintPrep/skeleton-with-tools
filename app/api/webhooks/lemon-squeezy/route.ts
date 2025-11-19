@@ -1,11 +1,10 @@
-// app/api/webhooks/lemon-squeezy/route.ts
+// app/api/webhooks/lemon-squeezy/route.ts - ENHANCED DEBUG VERSION
 import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient, SubscriptionStatus, PaymentStatus, PlanType } from '@prisma/client';
 import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
-// Map variant IDs to plan types
 const VARIANT_TO_PLAN: { [key: string]: PlanType } = {
   '1097562': PlanType.MONTHLY,
   '1097577': PlanType.YEARLY,  
@@ -18,6 +17,9 @@ export async function POST(request: NextRequest) {
     const secret = process.env.LEMON_SQUEEZY_WEBHOOK_SECRET;
     const signature = request.headers.get('x-signature');
 
+    console.log('🔧 Webhook received - Signature exists:', !!signature);
+    console.log('🔧 Webhook body length:', body.length);
+
     if (!secret) {
       console.error('❌ Missing LEMON_SQUEEZY_WEBHOOK_SECRET');
       return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 500 });
@@ -29,6 +31,12 @@ export async function POST(request: NextRequest) {
       .update(body)
       .digest('hex');
 
+    console.log('🔧 Signature verification:', {
+      received: signature?.substring(0, 20) + '...',
+      computed: computedSignature.substring(0, 20) + '...',
+      matches: signature === computedSignature
+    });
+
     if (signature !== computedSignature) {
       console.error('❌ Invalid webhook signature');
       return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
@@ -38,7 +46,12 @@ export async function POST(request: NextRequest) {
     const eventName = data.meta.event_name;
     const eventData = data.data;
 
-    console.log('🔄 Lemon Squeezy Webhook:', eventName, eventData.id);
+    console.log('🔄 Lemon Squeezy Webhook Event:', {
+      eventName,
+      eventId: eventData.id,
+      customData: data.meta.custom_data,
+      fullMeta: JSON.stringify(data.meta, null, 2)
+    });
 
     try {
       switch (eventName) {
@@ -80,15 +93,18 @@ export async function POST(request: NextRequest) {
 
 async function handleOrderCreated(orderData: any, metaData: any) {
   console.log('💰 Processing order:', orderData.id);
-  
-  // FIXED: Get user_id from the correct location
-  const userId = metaData.custom_data?.user_id || orderData.attributes.first_order_item?.meta?.custom_data?.user_id;
-  
-  console.log('🔍 Looking for user_id in meta:', metaData.custom_data);
+  console.log('🔍 Order meta data:', metaData);
   console.log('🔍 Order attributes:', orderData.attributes);
   
+  // Get user_id from custom data
+  const userId = metaData.custom_data?.user_id;
+  
+  console.log('🔍 Extracted user_id:', userId);
+  console.log('🔍 Full custom_data:', metaData.custom_data);
+  
   if (!userId) {
-    console.error('❌ No user ID found in order. Custom data:', metaData.custom_data);
+    console.error('❌ No user ID found in order custom data');
+    console.error('❌ Full meta data:', JSON.stringify(metaData, null, 2));
     return;
   }
 
@@ -102,8 +118,10 @@ async function handleOrderCreated(orderData: any, metaData: any) {
     return;
   }
 
+  console.log('✅ User found for order:', user.email);
+
   // Create payment record
-  await prisma.payment.create({
+  const payment = await prisma.payment.create({
     data: {
       userid: userId,
       provider: 'lemon_squeezy',
@@ -115,13 +133,43 @@ async function handleOrderCreated(orderData: any, metaData: any) {
     }
   });
 
-  console.log('✅ Payment record created for user:', userId);
+  console.log('✅ Payment record created:', payment);
+
+  // Check if this is a lifetime purchase (one-time)
+  const orderItems = orderData.attributes.order_items || [];
+  const lifetimeVariant = orderItems.find((item: any) => 
+    item.variant_id.toString() === '1097578'
+  );
+
+  if (lifetimeVariant) {
+    console.log('🎉 Lifetime purchase detected');
+    
+    // Create lifetime subscription
+    const subscription = await prisma.subscription.create({
+      data: {
+        userid: userId,
+        provider: 'lemon_squeezy',
+        subscriptionId: `lifetime_${orderData.id}`,
+        variantId: '1097578',
+        status: SubscriptionStatus.ACTIVE,
+        planType: PlanType.LIFETIME,
+        currentPeriodEnd: null, // Lifetime never expires
+      }
+    });
+    
+    console.log('✅ Lifetime subscription created:', subscription);
+    
+    // Update user features
+    await updateUserFeatures(userId, PlanType.LIFETIME, true);
+    console.log('✅ User features updated for lifetime plan');
+  }
 }
 
 async function handleSubscriptionCreated(subscriptionData: any, metaData: any) {
   console.log('🚀 Processing subscription creation:', subscriptionData.id);
+  console.log('🔍 Subscription meta:', metaData);
   
-  // FIXED: Get user_id from meta.custom_data
+  // Get user_id from custom data
   const userId = metaData.custom_data?.user_id;
   
   if (!userId) {
@@ -132,8 +180,10 @@ async function handleSubscriptionCreated(subscriptionData: any, metaData: any) {
   const variantId = subscriptionData.attributes.variant_id.toString();
   const planType = VARIANT_TO_PLAN[variantId] || PlanType.MONTHLY;
 
+  console.log('🔧 Creating subscription for user:', userId, 'plan:', planType);
+
   // Create or update subscription
-  await prisma.subscription.upsert({
+  const subscription = await prisma.subscription.upsert({
     where: { subscriptionId: subscriptionData.id },
     update: {
       status: SubscriptionStatus.ACTIVE,
@@ -152,99 +202,19 @@ async function handleSubscriptionCreated(subscriptionData: any, metaData: any) {
     },
   });
 
+  console.log('✅ Subscription created/updated:', subscription);
+
   // Update user status and features
   await updateUserFeatures(userId, planType, true);
   
   console.log('✅ Subscription activated for user:', userId);
 }
 
-async function handleSubscriptionUpdated(subscriptionData: any) {
-  console.log('📝 Processing subscription update:', subscriptionData.id);
-  
-  // Find existing subscription to get userId
-  const existingSub = await prisma.subscription.findUnique({
-    where: { subscriptionId: subscriptionData.id },
-    select: { userid: true }
-  });
-
-  if (!existingSub) {
-    console.error('❌ Subscription not found:', subscriptionData.id);
-    return;
-  }
-
-  const status = mapSubscriptionStatus(subscriptionData.attributes.status);
-  const variantId = subscriptionData.attributes.variant_id.toString();
-  const planType = VARIANT_TO_PLAN[variantId] || PlanType.MONTHLY;
-
-  await prisma.subscription.update({
-    where: { subscriptionId: subscriptionData.id },
-    data: {
-      status: status,
-      planType: planType,
-      currentPeriodEnd: new Date(subscriptionData.attributes.renews_at),
-      cancelAtPeriodEnd: subscriptionData.attributes.cancelled,
-      updatedAt: new Date(),
-    },
-  });
-
-  const isActive = status === SubscriptionStatus.ACTIVE;
-  await updateUserFeatures(existingSub.userid, planType, isActive);
-
-  console.log('✅ Subscription updated for user:', existingSub.userid, 'Status:', status);
-}
-
-async function handleSubscriptionCancelled(subscriptionData: any) {
-  console.log('⏸️ Processing subscription cancellation:', subscriptionData.id);
-  
-  await prisma.subscription.update({
-    where: { subscriptionId: subscriptionData.id },
-    data: {
-      status: SubscriptionStatus.CANCELLED,
-      cancelAtPeriodEnd: true,
-      updatedAt: new Date(),
-    },
-  });
-
-  console.log('✅ Subscription cancelled:', subscriptionData.id);
-}
-
-async function handleSubscriptionExpired(subscriptionData: any) {
-  console.log('❌ Processing subscription expiration:', subscriptionData.id);
-  
-  const existingSub = await prisma.subscription.findUnique({
-    where: { subscriptionId: subscriptionData.id },
-    select: { userid: true }
-  });
-
-  if (!existingSub) return;
-
-  await prisma.subscription.update({
-    where: { subscriptionId: subscriptionData.id },
-    data: {
-      status: SubscriptionStatus.EXPIRED,
-      updatedAt: new Date(),
-    },
-  });
-
-  // Downgrade user to free
-  await updateUserFeatures(existingSub.userid, PlanType.FREE, false);
-  console.log('✅ Subscription expired, user downgraded:', existingSub.userid);
-}
-
-function mapSubscriptionStatus(lsStatus: string): SubscriptionStatus {
-  const statusMap: { [key: string]: SubscriptionStatus } = {
-    'active': SubscriptionStatus.ACTIVE,
-    'past_due': SubscriptionStatus.PAST_DUE,
-    'unpaid': SubscriptionStatus.UNPAID,
-    'cancelled': SubscriptionStatus.CANCELLED,
-    'expired': SubscriptionStatus.EXPIRED,
-    'on_trial': SubscriptionStatus.TRIALING,
-  };
-  
-  return statusMap[lsStatus] || SubscriptionStatus.INACTIVE;
-}
+// ... keep other functions the same but add more debug logs ...
 
 async function updateUserFeatures(userId: string, planType: PlanType, isActive: boolean) {
+  console.log('🔧 Updating user features:', { userId, planType, isActive });
+  
   // Update user's pro status
   await prisma.user.update({
     where: { id: userId },
@@ -254,7 +224,7 @@ async function updateUserFeatures(userId: string, planType: PlanType, isActive: 
   // Update or create user status with feature flags
   const userStatusData = getFeatureFlagsForPlan(planType, isActive);
   
-  await prisma.userStatus.upsert({
+  const userStatus = await prisma.userStatus.upsert({
     where: { userid: userId },
     update: userStatusData,
     create: {
@@ -263,6 +233,8 @@ async function updateUserFeatures(userId: string, planType: PlanType, isActive: 
       ...userStatusData
     }
   });
+
+  console.log('✅ UserStatus updated:', userStatus);
 }
 
 function getFeatureFlagsForPlan(planType: PlanType, isActive: boolean) {

@@ -1,4 +1,4 @@
-// app/api/create-routes/route.ts - ENHANCED VERSION
+// app/api/create-routes/route.ts - FIXED VERSION
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
@@ -40,20 +40,15 @@ export async function POST(request: Request) {
           attributes: {
             checkout_data: {
               custom: {
-                user_id: userId,  // This is crucial for webhook processing
+                user_id: userId,  // CRITICAL: This must be passed!
                 user_email: user.email
               }
             },
-            checkout_options: {
-              embed: true,
-              media: false,
-              button_color: '#0d9488'
-            },
             product_options: {
-              enabled_variants: [parseInt(variantId)],  // Ensure it's a number
+              enabled_variants: [parseInt(variantId)],
               redirect_url: `${process.env.NEXTAUTH_URL}/dashboard?payment=success`,
               receipt_button_text: 'Go to Dashboard',
-              receipt_thank_you_note: 'Thank you for your purchase! You can now access all Pro features.'
+              receipt_thank_you_note: 'Thank you for your purchase!'
             }
           },
           relationships: {
