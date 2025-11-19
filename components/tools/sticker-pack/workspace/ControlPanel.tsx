@@ -90,7 +90,7 @@ export default function ControlPanel({
                     }}
                     className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 focus:border-[#00BFA6] focus:outline-none focus:ring-2 focus:ring-[#00BFA6]/20"
                 >
-                    <option value="auto">Auto-rotate to fit more</option>
+                    <option value="auto">Auto-rotate to fit more (Recommended)</option>
                     <option value="horizontal">Horizontal only</option>
                     <option value="vertical">Vertical only</option>
                 </select>

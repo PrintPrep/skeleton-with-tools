@@ -38,30 +38,35 @@ export async function generatePDF(
                 const imgData = sticker.item.imageUrl;
 
                 if (sticker.rotation === 90) {
-                    // Save the current state
-                    pdf.saveGraphicsState();
+                    // For 90-degree rotation, we need to:
+                    // 1. The packed dimensions (sticker.width, sticker.height) are the rotated box
+                    // 2. The original image dimensions need to be swapped back
+                    // 3. Position the image so it fits in the rotated bounding box
 
-                    // Translate and rotate
-                    const centerX = sticker.x + sticker.width / 2;
-                    const centerY = sticker.y + sticker.height / 2;
+                    // Original image dimensions (before packing rotation)
+                    const originalWidth = sticker.height;  // packed height = original width
+                    const originalHeight = sticker.width;   // packed width = original height
 
-                    pdf.translate(centerX, centerY);
-                    pdf.rotate(90);
-                    pdf.translate(-sticker.height / 2, -sticker.width / 2);
+                    // Position where the rotated image should appear
+                    // We place it at x, y + width (bottom-left of the bounding box after rotation)
+                    const posX = sticker.x;
+                    const posY = sticker.y + sticker.width;
 
+                    // Add image with 90-degree rotation
+                    // jsPDF's addImage rotation parameter: positive = counterclockwise
                     pdf.addImage(
                         imgData,
                         'JPEG',
-                        0,
-                        0,
-                        sticker.height,
-                        sticker.width,
+                        posX + originalHeight, //I changed this fron just posX
+                        posY,
+                        originalWidth,
+                        originalHeight,
                         undefined,
-                        'FAST'
+                        'FAST',
+                        90  // Rotate 90 degrees counterclockwise
                     );
-
-                    pdf.restoreGraphicsState();
                 } else {
+                    // No rotation - draw normally
                     pdf.addImage(
                         imgData,
                         'JPEG',

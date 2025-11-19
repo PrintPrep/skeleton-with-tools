@@ -43,7 +43,7 @@ export const DashboardHeader = ({
                     <div className="bg-gradient-to-r from-orange-400 to-pink-400 rounded-2xl p-8 text-white shadow-lg hover:shadow-xl transition-shadow">
                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                             <div>
-                                <h2 className="text-2xl font-bold mb-2"> Upgrade to Pro</h2>
+                                <h2 className="text-2xl font-bold mb-2"> Upgrade to Pro!</h2>
                                 <p className="text-white/90">
                                     Unlock cloud storage, save unlimited projects, and get priority rendering. 
                                     Start with a 7-day free trial, cancel anytime.

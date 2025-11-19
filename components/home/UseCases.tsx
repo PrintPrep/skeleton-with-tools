@@ -4,7 +4,7 @@ import React from 'react';
 
 export const UseCases = () => {
     const cases = [
-        { title: 'Event Organizers', desc: 'Make numbered tickets, passes, and wristbands.' },
+        { title: 'Event Organizers', desc: 'Make numbered tickets, passes, and tags.' },
         { title: 'Teachers & Schools', desc: 'Print booklets and worksheet packs instantly.' },
         { title: 'Print Shops', desc: 'Prepare client files in minutes, not hours.' },
         { title: 'Small Businesses', desc: 'Create cards, labels, vouchers, and more.' },
