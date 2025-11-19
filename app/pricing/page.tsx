@@ -3,13 +3,13 @@
 
 import React from 'react';
 import { Pricing } from '@/components/home/Pricing';
-import { Navbar } from '@/components/home/Navbar';
 import { Footer } from '@/components/home/Footer';
+import { DashboardNav } from '@/components/dashboard/DashboardNav';
 
 export default function PricingPage() {
   return (
     <div className="w-full overflow-hidden">
-      <Navbar />
+      <DashboardNav />
       <Pricing />
       <Footer />
     </div>
